@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>考研真题多刷记录 · 英语一 / 数学一 / 408 / 政治</title>
+<style>
+  :root{--primary:#2F5597;--bg:#f4f6fa;--card:#ffffff;--border:#e3e8f0;--text:#2b2f36;--muted:#8a94a6;}
+  *{box-sizing:border-box;}
+  body{margin:0;font-family:"Microsoft YaHei","PingFang SC",-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
+  .wrap{max-width:1240px;margin:0 auto;padding:24px 16px 60px;}
+
+  header.top{text-align:center;margin-bottom:26px;}
+  header.top h1{font-size:26px;margin:0 0 6px;color:var(--primary);letter-spacing:1px;}
+  header.top .sub{color:var(--muted);font-size:14px;margin:0;}
+  .cards{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;}
+  @media(max-width:900px){.cards{grid-template-columns:repeat(2,1fr);}}
+  .subject-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:24px 20px;cursor:pointer;text-align:center;transition:.18s;position:relative;overflow:hidden;box-shadow:0 1px 3px rgba(20,40,80,.05);}
+  .subject-card::before{content:"";position:absolute;left:0;top:0;right:0;height:5px;background:var(--accent,#2F5597);}
+  .subject-card:hover{transform:translateY(-3px);box-shadow:0 8px 22px rgba(20,40,80,.12);border-color:var(--accent,#2F5597);}
+  .subject-card .name{font-size:20px;font-weight:700;color:var(--accent,#2F5597);margin:6px 0 10px;}
+  .subject-card .meta{color:var(--muted);font-size:12px;line-height:1.7;}
+  .subject-card .full{font-size:12px;color:var(--text);background:#f2f5fb;border-radius:20px;display:inline-block;padding:2px 12px;margin-bottom:10px;}
+
+  .sub-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;}
+  .sub-head h1{font-size:22px;margin:0;color:var(--accent,#2F5597);}
+  .back-btn{font-family:inherit;font-size:13px;padding:7px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text);transition:.15s;white-space:nowrap;}
+  .back-btn:hover{border-color:var(--accent,#2F5597);color:var(--accent,#2F5597);}
+
+  .card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(20,40,80,.05);}
+  .card h2{font-size:16px;margin:0 0 14px;color:var(--accent,#2F5597);display:flex;align-items:center;gap:8px;}
+  .card h2::before{content:"";width:4px;height:16px;background:var(--accent,#2F5597);border-radius:2px;}
+
+  .stats{display:grid;grid-template-columns:repeat(var(--stat-cols,6),1fr);gap:10px;margin-bottom:18px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 8px;text-align:center;box-shadow:0 1px 3px rgba(20,40,80,.05);}
+  .stat .label{font-size:12px;color:var(--muted);margin-bottom:6px;}
+  .stat .value{font-size:20px;font-weight:700;color:var(--accent,#2F5597);}
+  .stat .value.up{color:#1e7d32;}.stat .value.down{color:#c0392b;}
+  @media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr);}}
+
+  .toolbar{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:18px;}
+  .toolbar .grp{display:flex;align-items:center;gap:8px;}
+  .toolbar label{font-size:13px;color:var(--muted);white-space:nowrap;}
+  button{font-family:inherit;font-size:13px;padding:7px 14px;border-radius:8px;cursor:pointer;border:1px solid var(--border);background:#fff;color:var(--text);transition:.15s;}
+  button:hover{border-color:var(--accent,#2F5597);color:var(--accent,#2F5597);}
+  button.active{background:var(--accent,#2F5597);border-color:var(--accent,#2F5597);color:#fff;}
+  button.danger{color:#c0392b;}
+  button.danger:hover{border-color:#c0392b;color:#c0392b;background:#fdf3f2;}
+  input[type=number].target{width:70px;padding:6px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px;text-align:center;}
+  input[type=color]{width:34px;height:28px;padding:0;border:1px solid var(--border);border-radius:6px;cursor:pointer;background:none;}
+  #dimSelect{margin-left:8px;padding:5px 8px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;color:var(--text);background:#fff;cursor:pointer;}
+
+  .chart{width:100%;height:380px;}
+  .chart.small{height:320px;}
+
+  .table-wrap{overflow:auto;max-height:560px;border:1px solid var(--border);border-radius:10px;}
+  table{width:100%;border-collapse:collapse;min-width:1120px;font-size:13px;}
+  thead th{position:sticky;top:0;z-index:2;background:var(--accent,#2F5597);color:#fff;padding:10px 6px;font-weight:600;white-space:nowrap;text-align:center;}
+  thead th small{font-weight:400;opacity:.85;}
+  tbody td{padding:4px 6px;text-align:center;border-bottom:1px solid #f0f2f7;}
+  tbody tr.paper-even td{background:#ffffff;}
+  tbody tr.paper-odd td{background:#f3f6fb;}
+  tbody tr:hover td{background:#eef3fb;}
+  tr.paper-start td{border-top:2px solid var(--accent,#2F5597);}
+  td.year{color:var(--accent,#2F5597);font-weight:700;white-space:nowrap;}
+  td.round{font-weight:700;}
+  td.round.round-0{color:#2F5597;}td.round.round-1{color:#ED7D31;}td.round.round-2{color:#70AD47;}
+  td.round.round-3{color:#9B59B6;}td.round.round-4{color:#16A085;}td.round.round-5{color:#C0392B;}
+  td.round{white-space:nowrap;}
+  .round-btn{margin-left:5px;padding:0 6px;font-size:12px;line-height:17px;border-radius:5px;cursor:pointer;vertical-align:middle;border:1px solid var(--border);background:#fff;color:var(--muted);}
+  .round-btn:hover{border-color:var(--accent,#2F5597);color:var(--accent,#2F5597);}
+  .round-btn.del:hover{border-color:#c0392b;color:#c0392b;background:#fdf3f2;}
+  td input[type=number]{width:56px;padding:5px 4px;border:1px solid transparent;border-radius:6px;text-align:center;font-size:13px;font-family:inherit;background:#fff;}
+  td input[type=number]:hover{border-color:#c8d3e6;}
+  td input[type=number]:focus{outline:none;border-color:var(--accent,#2F5597);background:#f6f9ff;}
+  td input[type=number]::-webkit-outer-spin-button,td input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+  td input[type=number]{-moz-appearance:textfield;}
+  td input.time{width:48px;}
+  td input[type=date]{width:118px;padding:4px 5px;border:1px solid transparent;border-radius:6px;font-size:12px;font-family:inherit;background:#fff;color:var(--text);}
+  td input[type=date]:hover{border-color:#c8d3e6;}
+  td input[type=date]:focus{outline:none;border-color:var(--accent,#2F5597);background:#f6f9ff;}
+  .sec-cell{display:flex;flex-direction:column;align-items:center;gap:2px;}
+  .sec-cell input{width:56px;}
+  .sec-cell input.sec-time{width:44px;font-size:11px;padding:2px 3px;color:var(--muted);}
+  td.time-total{font-weight:700;color:#2F5597;}
+  td.note input[type=text]{width:84px;padding:5px 6px;border:1px solid transparent;border-radius:6px;font-size:12px;font-family:inherit;text-align:left;background:#fff;}
+  td.note input[type=text]:focus{outline:none;border-color:var(--accent,#2F5597);background:#f6f9ff;}
+  td.total{font-weight:700;font-size:14px;}
+  td.total.good{color:#1e7d32;background:#e6f4ea;border-radius:6px;}
+  td.total.mid{color:#b07d00;background:#fff4d6;border-radius:6px;}
+  td.total.bad{color:#b3261e;background:#fdecea;border-radius:6px;}
+  td.subtotal{font-weight:700;color:#2F5597;background:#eef3fb;border-radius:6px;}
+
+  .modal{position:fixed;inset:0;background:rgba(0,0,0,.42);display:none;align-items:center;justify-content:center;z-index:100;}
+  .modal-box{background:#fff;border-radius:14px;width:460px;max-width:92vw;max-height:80vh;overflow:hidden;box-shadow:0 10px 40px rgba(0,0,0,.25);display:flex;flex-direction:column;}
+  .modal-head{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-bottom:1px solid var(--border);}
+  .modal-head h3{margin:0;font-size:16px;color:var(--accent,#2F5597);}
+  .modal-head .close{background:none;border:none;font-size:24px;line-height:1;cursor:pointer;color:var(--muted);padding:0;}
+  .modal-body{padding:12px 18px;overflow:auto;max-height:60vh;}
+  .mgmt-item{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f0f2f7;}
+  .mgmt-item input.mgmt-name{flex:1;padding:6px 8px;border:1px solid var(--border);border-radius:6px;font-size:13px;font-family:inherit;}
+  .mgmt-item button{padding:5px 10px;white-space:nowrap;}
+  .mgmt-item button:disabled{opacity:.35;cursor:not-allowed;}
+  .mgmt-item .mgmt-active{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--muted);white-space:nowrap;cursor:pointer;user-select:none;}
+  .mgmt-item .mgmt-active input{accent-color:var(--accent,#2F5597);cursor:pointer;margin:0;}
+  .mgmt-item .mgmt-active:hover{color:var(--accent,#2F5597);}
+  #mgmtModal .modal-box{width:580px;}
+  /* 试卷管理：拖动排序 */
+  .mgmt-item.draggable-row{cursor:grab;}
+  .mgmt-handle{flex:none;color:#b3bccb;font-size:16px;line-height:1;cursor:grab;user-select:none;padding:0 1px;letter-spacing:-2px;}
+  .mgmt-item:hover .mgmt-handle{color:var(--accent,#2F5597);}
+  .mgmt-item.dragging{opacity:.4;}
+  .mgmt-item.dragging .mgmt-handle{cursor:grabbing;}
+  .mgmt-item.drop-before{box-shadow:inset 0 2px 0 0 var(--accent,#2F5597);}
+  .mgmt-item.drop-after{box-shadow:inset 0 -2px 0 0 var(--accent,#2F5597);}
+  .mgmt-item.drag-over{background:#f7f9fd;}
+  /* 试卷管理：参与全选 */
+  .mgmt-bar{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+  .mgmt-bar-note{flex:1;font-size:12px;color:var(--muted);}
+  .mgmt-bar button{padding:4px 10px;font-size:12px;}
+  .mgmt-bar button:disabled{opacity:.35;cursor:not-allowed;border-color:var(--border);color:var(--text);}
+  tbody tr.paper-off td{background:#f7f8fa;}
+  tbody tr.paper-off td.year{color:#b3bccb;}
+  .paper-off-tag{display:inline-block;font-size:10px;padding:1px 5px;border-radius:8px;background:#e6eaf1;color:#8a94a6;margin-left:5px;vertical-align:middle;font-weight:400;}
+
+  footer{margin-top:20px;color:var(--muted);font-size:12px;text-align:center;}
+  footer .legend{display:inline-flex;gap:14px;margin-bottom:6px;}
+  .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle;}
+  .dot.g{background:#1e7d32;}.dot.y{background:#e0a800;}.dot.r{background:#c0392b;}
+  .tip{color:var(--muted);font-size:12px;margin-top:4px;}
+  .plan-list{display:flex;flex-direction:column;gap:12px;}
+  .plan-empty{text-align:center;color:var(--muted);padding:48px 16px;font-size:14px;}
+  .plan-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(20,40,80,.05);}
+  .plan-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+  .plan-period{font-weight:700;color:#E67E22;font-size:15px;}
+  .plan-actions button{padding:4px 10px;font-size:12px;margin-left:6px;}
+  .plan-section{margin:6px 0;line-height:1.65;white-space:pre-wrap;word-break:break-word;}
+  .plan-section b{color:var(--muted);font-weight:600;}
+  .plan-tags{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0;}
+  .plan-tag{display:inline-block;font-size:12px;padding:2px 10px;border-radius:12px;background:#FDF0E2;color:#C0560F;border:1px solid #F3D4B0;}
+  .plan-subjects{display:flex;flex-wrap:wrap;gap:10px;margin-top:2px;}
+  .plan-subjects .chk{display:inline-flex;align-items:center;gap:5px;font-size:13px;color:var(--text);cursor:pointer;}
+  .plan-subjects .chk input{accent-color:#E67E22;cursor:pointer;}
+  .modal-body input[type=text]{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;}
+  .modal-body input[type=text]:focus{outline:none;border-color:var(--accent,#2F5597);}
+  .modal-body textarea{width:100%;min-height:84px;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;resize:vertical;background:#fff;line-height:1.6;}
+  .modal-body textarea:focus{outline:none;border-color:var(--accent,#2F5597);}
+  .modal-body label{display:block;font-size:13px;color:var(--muted);margin:12px 0 4px;}
+  .modal-foot{padding:12px 18px;border-top:1px solid var(--border);text-align:right;}
+  .modal-foot button{background:#E67E22;border-color:#E67E22;color:#fff;}
+  .modal-foot button:hover{opacity:.9;}
+  .plan-type.active{background:#E67E22;border-color:#E67E22;color:#fff;}
+  .plan-range{display:flex;align-items:center;gap:8px;}
+  .plan-range input[type=date]{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);}
+  .plan-range input[type=date]:focus{outline:none;border-color:#E67E22;}
+  .plan-range-msg{color:var(--muted);font-size:12px;margin-top:6px;}
+  .plan-subfields .ps-field label{display:block;font-size:13px;font-weight:700;color:#E67E22;margin:14px 0 4px;}
+  .plan-subfields textarea{min-height:56px;}
+  .plan-2col{display:flex;gap:12px;flex-wrap:wrap;}
+  .plan-2col .col{flex:1;min-width:0;}
+  .plan-col-title{font-size:13px;font-weight:700;color:#E67E22;margin:0 0 6px;}
+  .modal-box.draggable{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
+  .modal-box.draggable .modal-head{cursor:move;}
+  .today-plan{margin-top:22px;border-color:#F3D4B0;background:linear-gradient(180deg,#fffdf9,#fff);}
+  .today-item{background:#fff;border:1px solid #F3D4B0;border-left:4px solid #E67E22;border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .today-item-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
+  .today-level{font-size:12px;font-weight:700;color:#C0560F;background:#FDF0E2;border:1px solid #F3D4B0;border-radius:12px;padding:2px 10px;}
+  .today-range{font-size:13px;color:#E67E22;font-weight:700;}
+  .today-sub{font-size:13px;margin:4px 0;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
+  .today-sub b{color:#C0560F;}
+  .countdown-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;margin-bottom:18px;padding:26px 28px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#1e3a8a 0%,#2F5597 42%,#7C3AED 100%);box-shadow:0 12px 32px rgba(47,85,151,.32);}
+  .countdown-card::before{content:"";position:absolute;right:-60px;top:-80px;width:260px;height:260px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.30),transparent 65%);pointer-events:none;}
+  .countdown-card::after{content:"";position:absolute;left:-40px;bottom:-70px;width:200px;height:200px;border-radius:50%;background:radial-gradient(circle,rgba(167,139,250,.38),transparent 65%);pointer-events:none;}
+  .countdown-card .cd-left{flex:1;min-width:0;position:relative;z-index:1;padding-right:60px;}
+  .countdown-card .cd-name{font-size:22px;font-weight:800;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.16);}
+  .countdown-card .cd-date{font-size:13px;opacity:.92;margin-top:8px;letter-spacing:.5px;}
+  .countdown-card .cd-right{position:relative;z-index:1;text-align:center;min-width:132px;padding:14px 22px;border-radius:16px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.2);}
+  .countdown-card .cd-num{font-size:56px;font-weight:900;line-height:1;letter-spacing:1px;font-variant-numeric:tabular-nums;animation:cdPulse 3s ease-in-out infinite;}
+  .countdown-card .cd-num.small{font-size:30px;}
+  .countdown-card .cd-unit{font-size:13px;opacity:.92;margin-top:8px;letter-spacing:2px;}
+  .countdown-card .cd-edit{position:absolute;top:16px;right:18px;z-index:2;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;padding:6px 14px;border-radius:16px;font-size:12px;cursor:pointer;transition:.18s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
+  .countdown-card .cd-edit:hover{background:rgba(255,255,255,.3);border-color:#fff;}
+  .countdown-card.urgent{background:linear-gradient(135deg,#7f1d1d 0%,#c0392b 46%,#b45309 100%);box-shadow:0 12px 32px rgba(192,57,43,.35);}
+  .countdown-card.urgent .cd-right{background:rgba(255,255,255,.16);border-color:rgba(255,213,102,.5);}
+  .countdown-card.urgent .cd-num{color:#FFD166;}
+  @keyframes cdPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+  @media(max-width:600px){.countdown-card{flex-direction:column;align-items:stretch;gap:14px;}.countdown-card .cd-left{padding-right:0;}.countdown-card .cd-right{min-width:0;}}
+  .modal-body input[type=date]{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);}
+  .modal-body input[type=date]:focus{outline:none;border-color:var(--accent,#2F5597);}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- 首页 -->
+  <div id="home" class="view">
+    <header class="top">
+      <h1>考研真题多刷记录</h1>
+      <p class="sub">数学一 ｜ 408 ｜ 英语一 ｜ 政治 ｜ 多刷分数曲线 ｜ 数据自动保存在本浏览器</p>
+    </header>
+    <div class="countdown-card" id="countdownCard">
+      <div class="cd-left">
+        <div class="cd-name" id="cdName">考研初试</div>
+        <div class="cd-date" id="cdDate">—</div>
+      </div>
+      <div class="cd-right">
+        <div class="cd-num" id="cdNum">—</div>
+        <div class="cd-unit" id="cdUnit">天</div>
+      </div>
+      <button class="cd-edit" id="btnEditCountdown">✎ 编辑</button>
+    </div>
+    <div class="cards">
+      <div class="subject-card" data-sub="math" style="--accent:#C00000;">
+        <div class="name">数学一</div><div class="full">满分 150</div>
+        <div class="meta">2005–2026<br>科目：高数·线代·概率<br>题型：选择·填空·解答</div>
+      </div>
+      <div class="subject-card" data-sub="cs408" style="--accent:#0E7A5F;">
+        <div class="name">408</div><div class="full">满分 150</div>
+        <div class="meta">2009–2026<br>科目：数据·组成·系统·网络<br>题型：选择·大题</div>
+      </div>
+      <div class="subject-card" data-sub="english" style="--accent:#2F5597;">
+        <div class="name">英语一</div><div class="full">满分 100</div>
+        <div class="meta">2005–2026<br>完形·阅读×4·新题型·翻译·作文</div>
+      </div>
+      <div class="subject-card" data-sub="politics" style="--accent:#7B2FBE;">
+        <div class="name">政治</div><div class="full">满分 100</div>
+        <div class="meta">2005–2026<br>单选·多选·大题<br>含客观题合计</div>
+      </div>
+      <div class="subject-card" data-plan="1" style="--accent:#E67E22;">
+        <div class="name">总结与计划</div><div class="full">日 · 周 · 半月 · 月</div>
+        <div class="meta">每日 / 每周 / 每半月 / 每月<br>总结、复盘与计划</div>
+      </div>
+    </div>
+    <div class="card today-plan" id="todayPlanCard" style="display:none;">
+      <h2 style="color:#E67E22;">今日计划</h2>
+      <div id="todayPlanList"></div>
+      <div class="tip">今日所在时间范围内的所有「计划」自动汇总显示于此，点击「总结与计划」卡片可查看 / 编辑。</div>
+    </div>
+    <div class="card today-plan" id="reminderCard" style="display:none;">
+      <h2 style="color:#E67E22;">总结与计划提醒</h2>
+      <div id="reminderList"></div>
+      <div class="tip">范围结束日到了，提醒该做总结或新一轮计划；点击提醒直接进入「总结与计划」页面对应位置。</div>
+    </div>
+    <div class="card backup-card">
+      <h2 style="color:#E67E22;">数据备份 · 多设备同步</h2>
+      <div class="toolbar" style="margin-bottom:0;">
+        <div class="grp">
+          <button id="btnBackupAll" style="background:#E67E22;border-color:#E67E22;color:#fff;">一键备份</button>
+          <button id="btnRestoreAll">一键恢复</button>
+        </div>
+      </div>
+      <div class="tip">「一键备份」把四科成绩、目标分、配色、总结与计划全部导出为一个 JSON 文件；「一键恢复」把它导回网页。换设备时用微信 / 网盘把该文件传到新设备，再点「一键恢复」即可。</div>
+    </div>
+    <footer><div>数学一「高数/线代/概率」按 82/34/34 估算；408 自 2009 年统考；政治客观题＝单选＋多选。</div></footer>
+  </div>
+
+  <!-- 科目页 -->
+  <div id="subject" class="view" style="display:none;">
+    <div class="sub-head">
+      <button class="back-btn" id="btnBack">← 返回首页</button>
+      <h1 id="subTitle">真题多刷记录</h1>
+    </div>
+
+    <div class="stats" id="stats"></div>
+
+    <div class="toolbar">
+      <div class="grp">
+        <label>刷次：</label>
+        <span id="filterBtns" style="display:flex;align-items:center;gap:8px;"></span>
+      </div>
+      <div class="grp">
+        <label>目标分/国家线：</label>
+        <input type="number" class="target" id="targetInput" value="55" min="0" max="150" step="1">
+      </div>
+      <div class="grp">
+        <label>配色：</label>
+        <input type="color" id="colorInput" value="#2F5597" title="选择主题色">
+      </div>
+      <div class="grp" style="margin-left:auto;">
+        <button id="btnAdd">＋ 添加试卷</button>
+        <button id="btnMgmt">管理试卷</button>
+        <button id="btnImport">导入 CSV</button>
+        <button id="btnExport">导出 CSV</button>
+        <button id="btnReset" class="danger">清空重来</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>多刷曲线<select id="dimSelect" title="切换展示维度"></select></h2>
+      <div id="chart1" class="chart"></div>
+      <div class="tip">横轴为试卷，每个刷次一条曲线；刷次在下方「成绩记录」中按套试卷单独添加（＋）/ 删除（✕），这里的曲线最多显示到所有试卷里的最高刷次。右上可切换展示「总分」或某个题型，展示总分时显示红色目标虚线。</div>
+    </div>
+
+    <div class="card">
+      <h2>题型得分率对比（%）</h2>
+      <div id="chart2" class="chart small"></div>
+      <div class="tip">各维度按「平均得分 ÷ 满分」折算为得分率，横向比较强弱与提升。</div>
+    </div>
+
+    <div class="card">
+      <h2>成绩记录</h2>
+      <div class="table-wrap">
+        <table>
+          <thead><tr id="theadRow"></tr></thead>
+          <tbody id="tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <footer>
+      <div class="legend">
+        <span><span class="dot g"></span>≥80%</span>
+        <span><span class="dot y"></span>60–79%</span>
+        <span><span class="dot r"></span>&lt;60%</span>
+      </div>
+      <div id="subFooter"></div>
+      <div>建议：一刷限时摸底 · 二刷精析错因 · 三刷专攻错题与薄弱题型</div>
+    </footer>
+  </div>
+
+  <!-- 总结与计划 -->
+  <div id="plan" class="view" style="display:none;">
+    <div class="sub-head">
+      <button class="back-btn" id="btnBackPlan">← 返回首页</button>
+      <h1 style="color:#E67E22;">总结与计划</h1>
+    </div>
+    <div class="toolbar">
+      <div class="grp">
+        <button class="active plan-tab" data-level="day">每日</button>
+        <button class="plan-tab" data-level="week">每周</button>
+        <button class="plan-tab" data-level="halfmonth">每半月</button>
+        <button class="plan-tab" data-level="month">每月</button>
+      </div>
+      <div class="grp">
+        <button class="active plan-type" data-type="plan">📋 计划</button>
+        <button class="plan-type" data-type="summary">📝 总结</button>
+        <button class="plan-type" data-type="combined">📋📝 二者合一</button>
+      </div>
+      <div class="grp" style="margin-left:auto;">
+        <button id="btnAddPlan" style="background:#E67E22;border-color:#E67E22;color:#fff;">＋ 添加</button>
+        <button id="btnImportPlan">导入</button>
+        <button id="btnExportPlan">导出</button>
+        <button id="btnExportPlanCSV">导出CSV</button>
+      </div>
+    </div>
+    <div id="planList" class="plan-list"></div>
+  </div>
+
+  <!-- 总结计划弹窗 -->
+  <div id="planModal" class="modal">
+    <div class="modal-box draggable">
+      <div class="modal-head"><h3 id="planModalTitle" style="color:#E67E22;">添加</h3><button class="close" id="btnClosePlan">×</button></div>
+      <div class="modal-body" id="planModalBody">
+        <label>时间段范围（开始日 至 结束日）</label>
+        <div class="plan-range">
+          <input type="date" id="planStart"> 至 <input type="date" id="planEnd">
+        </div>
+        <div class="plan-range-msg" id="planRangeMsg"></div>
+        <div class="plan-subfields" id="planCols">
+          <div class="col" id="summaryCol">
+            <div class="plan-col-title" id="summaryColTitle" style="display:none;">总结</div>
+            <div class="ps-field" id="planOverallField">
+              <label>总体</label>
+              <textarea id="planOverall" placeholder="总体的总结 / 计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>数学一</label>
+              <textarea id="planSub_数学一" placeholder="数学一的总结 / 计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>408</label>
+              <textarea id="planSub_408" placeholder="408 的总结 / 计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>英语一</label>
+              <textarea id="planSub_英语一" placeholder="英语一的总结 / 计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>政治</label>
+              <textarea id="planSub_政治" placeholder="政治的总结 / 计划…"></textarea>
+            </div>
+          </div>
+          <div class="col" id="planCol" style="display:none;">
+            <div class="plan-col-title">计划</div>
+            <div class="ps-field">
+              <label>总体</label>
+              <textarea id="planPlanOverall" placeholder="总体的计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>数学一</label>
+              <textarea id="planSubPlan_数学一" placeholder="数学一的计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>408</label>
+              <textarea id="planSubPlan_408" placeholder="408 的计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>英语一</label>
+              <textarea id="planSubPlan_英语一" placeholder="英语一的计划…"></textarea>
+            </div>
+            <div class="ps-field">
+              <label>政治</label>
+              <textarea id="planSubPlan_政治" placeholder="政治的计划…"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot"><button id="btnSavePlan">保存</button></div>
+    </div>
+  </div>
+
+  <!-- 试卷管理弹窗 -->
+  <div id="mgmtModal" class="modal">
+    <div class="modal-box">
+      <div class="modal-head"><h3>试卷管理（参与 / 改名 / 排序 / 删除）</h3><button class="close" id="btnCloseMgmt">×</button></div>
+      <div class="modal-body">
+        <div class="mgmt-bar">
+          <span class="mgmt-bar-note" id="mgmtActiveNote"></span>
+          <button id="btnActiveAll">全选</button>
+          <button id="btnActiveNone">全不选</button>
+        </div>
+        <div id="mgmtList"></div>
+        <div class="tip">按住左侧的 ⠿ 拖动即可调整试卷顺序（顺序同时决定成绩记录表的行序与曲线图的横轴顺序）。<br>取消勾选「参与」的试卷不计入均分统计与曲线图（「已完成套数」仍按全部试卷计算）；其分数仍可在下方表格中正常录入，表格中会以灰色标注「不参与」。</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 倒计时设置弹窗 -->
+  <div id="countdownModal" class="modal">
+    <div class="modal-box">
+      <div class="modal-head"><h3>考研倒计时设置</h3><button class="close" id="btnCloseCountdown">×</button></div>
+      <div class="modal-body">
+        <label>名称</label>
+        <input type="text" id="cdInputName" placeholder="如：考研初试 / 考研笔试">
+        <label>目标日期</label>
+        <input type="date" id="cdInputDate">
+      </div>
+      <div class="modal-foot"><button id="btnSaveCountdown">保存</button></div>
+    </div>
+  </div>
+
+  <input type="file" id="fileInput" accept=".csv,text/csv" style="display:none;">
+  <input type="file" id="planFileInput" accept=".json,.csv,application/json,text/csv" style="display:none;">
+  <input type="file" id="backupFileInput" accept=".json,application/json" style="display:none;">
+
+</div>
+
+<script>
+(function(){
+  function range(a,b){var arr=[];for(var i=a;i<=b;i++)arr.push(i);return arr;}
+
+  var CONFIG={
+    english:{
+      id:'english',name:'英语一',full:100,accent:'#2F5597',target:55,
+      years:range(2005,2026),perSectionTime:true,
+      sections:[
+        {name:'完形填空',full:10},{name:'阅读1',full:10},{name:'阅读2',full:10},
+        {name:'阅读3',full:10},{name:'阅读4',full:10},{name:'新题型',full:10},
+        {name:'翻译',full:10},{name:'小作文',full:10},{name:'大作文',full:20}
+      ],
+      totalIndices:null,
+      subtotals:[{name:'阅读总分',full:40,indices:[1,2,3,4]},{name:'客观题总分',full:60,indices:[0,1,2,3,4,5]}],
+      footer:'完形10＋阅读1-4各10＋新题型10＋翻译10＋小作文10＋大作文20＝100 ｜ 客观题60 · 主观题40'
+    },
+    math:{
+      id:'math',name:'数学一',full:150,accent:'#C00000',target:60,
+      years:range(2005,2026),perSectionTime:true,
+      sections:[
+        {name:'高等数学',full:82},{name:'线性代数',full:34},{name:'概率论',full:34},
+        {name:'选择题',full:50},{name:'填空题',full:30},{name:'解答题',full:70}
+      ],
+      totalIndices:[3,4,5],
+      subtotals:[{name:'科目合计',full:150,indices:[0,1,2]}],
+      footer:'科目：高数82＋线代34＋概率34；题型：选择50＋填空30＋解答70。总分＝选择＋填空＋解答＝150'
+    },
+    cs408:{
+      id:'cs408',name:'408 计算机基础综合',full:150,accent:'#0E7A5F',target:60,
+      years:range(2009,2026),perSectionTime:true,
+      sections:[
+        {name:'数据结构',full:45},{name:'计算机组成原理',full:45},
+        {name:'操作系统',full:35},{name:'计算机网络',full:25},
+        {name:'选择题',full:80},{name:'大题',full:70}
+      ],
+      totalIndices:[4,5],
+      subtotals:[{name:'科目合计',full:150,indices:[0,1,2,3]}],
+      footer:'科目：数据结构45＋组成原理45＋操作系统35＋网络25；题型：选择80＋大题70。总分＝选择＋大题＝150'
+    },
+    politics:{
+      id:'politics',name:'政治',full:100,accent:'#7B2FBE',target:55,
+      years:range(2005,2026),perSectionTime:true,
+      sections:[
+        {name:'单选',full:16},{name:'多选',full:34},{name:'大题',full:50}
+      ],
+      totalIndices:null,
+      subtotals:[{name:'客观题',full:50,indices:[0,1]}],
+      footer:'单选16＋多选34＋大题(分析题)50＝100 ｜ 客观题＝单选＋多选＝50'
+    }
+  };
+  // ===== 刷次（多刷）：每套试卷默认只有「一刷」，可在成绩记录表中单独添加 / 删除；
+  //       统计卡、曲线图、筛选按钮按「所有试卷里的最高刷次」保持一致 =====
+  var ROUND_NAMES=['一刷','二刷','三刷','四刷','五刷','六刷'];
+  var ROUND_COLORS=['#2F5597','#ED7D31','#70AD47','#9B59B6','#16A085','#C0392B'];
+  var ROUNDS=['一刷']; // 展示用刷次列表，由 syncRounds() 依最高刷次计算
+
+  var currentSubject=null;
+  var papers=[];
+  var records=[];
+  var currentFilter='全部';
+  var chart1=null,chart2=null;
+  var redrawTimer=null;
+
+  function cfg(){return CONFIG[currentSubject];}
+  function storeKey(){return 'kaoyan_'+cfg().id+'_v1';}
+  function targetKey(){return 'kaoyan_target_'+cfg().id;}
+  function genId(){return 'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,7);}
+
+  function buildDefault(){
+    var c=cfg();var ps=[],rs=[];
+    c.years.forEach(function(y){
+      var p={id:genId(),name:String(y),active:true};ps.push(p);
+      rs.push(newRoundRecord(p.id,'一刷')); // 每套试卷默认只有「一刷」
+    });
+    return {v:2,papers:ps,records:rs};
+  }
+  function migrateOld(oldArr){
+    var c=cfg();var ps=[],rs=[],seen={};
+    oldArr.forEach(function(r){
+      if(r==null)return;
+      var key=String(r.year);
+      if(!seen[key]){var id=genId();seen[key]=id;ps.push({id:id,name:key,active:true});}
+      var s=(r.s||[]).slice(0,c.sections.length);while(s.length<c.sections.length)s.push(null);
+      rs.push({paperId:seen[key],round:r.round,s:s,times:null,note:r.note||'',time:null,date:null});
+    });
+    return {papers:ps,records:rs};
+  }
+  function loadData(){
+    var c=cfg();var state=null;
+    try{
+      var raw=localStorage.getItem(storeKey());
+      if(raw){var d=JSON.parse(raw);
+        if(Array.isArray(d))state=migrateOld(d);
+        else if(d&&Array.isArray(d.papers)&&Array.isArray(d.records))state=d;
+      }
+    }catch(e){}
+    if(!state)state=buildDefault();
+    if(state.v!==2){
+      // 旧版会为每套试卷预建「全部刷次」的空占位记录；现在刷次改为每套试卷单独增减，
+      // 这些一行都没填过的占位记录会清掉，只保留真正填过内容的刷次（默认回到只有一刷）。
+      state.records=state.records.filter(roundHasData);
+      state.v=2;
+    }
+    state.records.forEach(function(r){r.s=(r.s||[]).slice(0,c.sections.length);while(r.s.length<c.sections.length)r.s.push(null);if(!Array.isArray(r.times))r.times=new Array(c.sections.length).fill(null);while(r.times.length<c.sections.length)r.times.push(null);if(r.times.length>c.sections.length)r.times=r.times.slice(0,c.sections.length);if(r.note==null)r.note='';if(r.time==null)r.time=null;if(r.date==null)r.date=null;});
+    var names={};state.papers.forEach(function(p){names[p.name]=1;});
+    c.years.forEach(function(y){var k=String(y);if(!names[k]){state.papers.push({id:genId(),name:k,active:true});names[k]=1;}});
+    state.papers.forEach(function(p){if(p.active===undefined)p.active=true;}); // 旧数据默认全部参与
+    state.papers.forEach(function(p){ // 每套试卷至少保留「一刷」
+      if(!state.records.some(function(r){return r.paperId===p.id&&r.round==='一刷';}))state.records.push(newRoundRecord(p.id,'一刷'));
+    });
+    papers=state.papers;records=state.records;
+    syncRounds();
+    saveData();
+  }
+  function saveData(){try{localStorage.setItem(storeKey(),JSON.stringify({v:2,papers:papers,records:records}));}catch(e){}}
+
+  function totalIndices(){var c=cfg();return c.totalIndices||c.sections.map(function(_,i){return i;});}
+  function sumOf(rec,indices){var sum=0,any=false;indices.forEach(function(i){var v=rec.s[i];if(v!==null&&!isNaN(v)){sum+=v;any=true;}});return any?sum:null;}
+  function totalOf(rec){return sumOf(rec,totalIndices());}
+  function totalTime(rec){
+    var c=cfg();
+    if(c.perSectionTime){
+      var sum=0,any=false;
+      rec.times.forEach(function(t){if(t!=null&&!isNaN(t)){sum+=t;any=true;}});
+      return any?sum:rec.time;
+    }
+    return rec.time;
+  }
+  function fmt(v){return v===null?'—':(Number.isInteger(v)?v:v.toFixed(1));}
+  function findRecord(paperId,round){for(var i=0;i<records.length;i++)if(records[i].paperId===paperId&&records[i].round===round)return i;return -1;}
+  // ===== 刷次（每套试卷单独增减） =====
+  // 该条记录是否填过内容（用来判断某个刷次是不是「已有数据」）
+  function roundHasData(r){
+    if(!r)return false;
+    if(r.s&&r.s.some(function(v){return v!=null&&!isNaN(v);}))return true;
+    if(r.times&&r.times.some(function(v){return v!=null&&!isNaN(v);}))return true;
+    if(r.time!=null)return true;
+    if(r.date)return true;
+    if(r.note&&String(r.note).trim())return true;
+    return false;
+  }
+  function newRoundRecord(pid,rd){
+    var c=cfg();
+    return {paperId:pid,round:rd,s:new Array(c.sections.length).fill(null),times:new Array(c.sections.length).fill(null),note:'',time:null,date:null};
+  }
+  // 某套试卷已有的刷次（按 一刷→六刷 排序），至少返回「一刷」
+  function roundsOf(pid){
+    var out=[];
+    ROUND_NAMES.forEach(function(rd){
+      if(records.some(function(r){return r.paperId===pid&&r.round===rd;}))out.push(rd);
+    });
+    return out.length?out:['一刷'];
+  }
+  function nextRoundName(rs){
+    for(var i=0;i<ROUND_NAMES.length;i++){if(rs.indexOf(ROUND_NAMES[i])<0)return ROUND_NAMES[i];}
+    return null;
+  }
+  function addRound(pid){
+    var rs=roundsOf(pid),next=nextRoundName(rs);
+    if(!next){alert('最多支持 '+ROUND_NAMES.length+' 个刷次');return;}
+    records.push(newRoundRecord(pid,next));
+    afterChange();
+  }
+  function removeRound(pid,rd){
+    if(rd==='一刷'){alert('「一刷」是每套试卷的基础刷次，不能删除');return;}
+    if(roundsOf(pid).length<=1){alert('每套试卷至少保留「一刷」');return;}
+    var ri=findRecord(pid,rd);
+    if(ri>=0&&roundHasData(records[ri])&&!confirm('「'+rd+'」已填写内容，确定删除吗？此操作不可撤销。'))return;
+    records=records.filter(function(r){return !(r.paperId===pid&&r.round===rd);});
+    afterChange();
+  }
+  // 展示用刷次 = 所有试卷里的最高刷次（其余记录部分与最高刷次保持一致）
+  function syncRounds(){
+    var n=1;
+    records.forEach(function(r){var i=ROUND_NAMES.indexOf(r.round);if(i>=0&&i+1>n)n=i+1;});
+    ROUNDS=ROUND_NAMES.slice(0,Math.min(n,ROUND_NAMES.length));
+    return ROUNDS.length;
+  }
+  function refreshRoundsUI(){
+    syncRounds();
+    if(ROUNDS.indexOf(currentFilter)<0)currentFilter='全部';
+    renderStats();renderFilters();renderTable();updateStats();drawCharts();
+  }
+  function statCard(label,id){
+    var d=document.createElement('div');d.className='stat';
+    var l=document.createElement('div');l.className='label';l.textContent=label;
+    var v=document.createElement('div');v.className='value';v.id=id;v.textContent='—';
+    d.appendChild(l);d.appendChild(v);return d;
+  }
+  function renderStats(){
+    var wrap=document.getElementById('stats');if(!wrap)return;
+    wrap.innerHTML='';
+    ROUNDS.forEach(function(rd){wrap.appendChild(statCard(rd+'均分','stat_avg_'+rd));});
+    for(var i=0;i+1<ROUNDS.length;i++){wrap.appendChild(statCard(ROUNDS[i]+'→'+ROUNDS[i+1],'stat_d'+i));}
+    wrap.appendChild(statCard('已完成套数','stat_done'));
+    wrap.style.setProperty('--stat-cols',ROUNDS.length+(ROUNDS.length>1?ROUNDS.length-1:0)+1);
+  }
+  function renderFilters(){
+    var wrap=document.getElementById('filterBtns');if(!wrap)return;
+    wrap.innerHTML='';
+    ['全部'].concat(ROUNDS).forEach(function(f){
+      var b=document.createElement('button');b.dataset.filter=f;b.textContent=f;
+      if(f===currentFilter)b.className='active';
+      b.addEventListener('click',function(){
+        currentFilter=f;
+        wrap.querySelectorAll('button').forEach(function(x){x.classList.remove('active');});
+        b.classList.add('active');applyFilter();
+      });
+      wrap.appendChild(b);
+    });
+  }
+  function roundBtn(txt,cls,title,fn){
+    var b=document.createElement('button');
+    b.type='button';b.className='round-btn'+(cls?' '+cls:'');b.textContent=txt;b.title=title;
+    b.addEventListener('click',function(e){e.stopPropagation();fn();});
+    return b;
+  }
+
+  function isPaperActive(p){return p.active!==false;}
+  function activePapers(){return papers.filter(isPaperActive);} // 仅「参与」的试卷进入统计与图表
+
+  function addTd(tr,txt,cls){var td=document.createElement('td');td.textContent=txt;if(cls)td.className=cls;tr.appendChild(td);return td;}
+
+  function renderTable(){
+    var c=cfg();
+    var thead=document.getElementById('theadRow');thead.innerHTML='';
+    function th(html){var x=document.createElement('th');x.innerHTML=html;thead.appendChild(x);}
+    th('试卷');th('刷次');
+    c.sections.forEach(function(s){th(s.name+'<small>('+s.full+')</small>');});
+    c.subtotals.forEach(function(s){th(s.name+'<small>('+s.full+')</small>');});
+    th('总分');th('时间<small>(分)</small>');th('日期');th('备注');
+
+    var tbody=document.getElementById('tbody');tbody.innerHTML='';
+    papers.forEach(function(p,pi){
+      var parity=(pi%2===0)?'paper-even':'paper-odd';
+      var act=isPaperActive(p);
+      var prs=roundsOf(p.id);
+      prs.forEach(function(rd,roundIdx){
+        var rIdx=findRecord(p.id,rd);if(rIdx<0)return;
+        var rec=records[rIdx];
+        var tr=document.createElement('tr');tr.dataset.round=rd;
+        tr.className=parity+(roundIdx===0?' paper-start':'')+(act?'':' paper-off');
+        var nameTd=addTd(tr,p.name,'year');
+        if(!act){var tag=document.createElement('span');tag.className='paper-off-tag';tag.textContent='不参与';nameTd.appendChild(tag);}
+        // 刷次单元格：本套试卷的刷次 + 单独增减按钮
+        var rtd=document.createElement('td');
+        rtd.className='round round-'+ROUND_NAMES.indexOf(rd);
+        rtd.appendChild(document.createTextNode(rd));
+        if(roundIdx===0){ // ＋ 固定在该套试卷第一行，位置不随刷次增减变动
+          var nx=nextRoundName(prs);
+          if(nx)rtd.appendChild(roundBtn('＋','add','给这套试卷添加「'+nx+'」',function(){addRound(p.id);}));
+        }
+        if(roundIdx>0)rtd.appendChild(roundBtn('✕','del','删除这套试卷的「'+rd+'」记录',function(){removeRound(p.id,rd);}));
+        tr.appendChild(rtd);
+        c.sections.forEach(function(sec,si){
+          var td=document.createElement('td');
+          var wrap=document.createElement('div');wrap.className='sec-cell';
+          var inp=document.createElement('input');inp.type='number';inp.min=0;inp.max=sec.full;inp.step=0.5;
+          inp.value=rec.s[si]===null?'':rec.s[si];
+          inp.dataset.idx=rIdx;inp.dataset.si=si;inp.dataset.full=sec.full;
+          inp.addEventListener('input',onScoreInput);
+          wrap.appendChild(inp);
+          if(c.perSectionTime){
+            var tinp=document.createElement('input');tinp.type='number';tinp.min=0;tinp.step=1;tinp.className='sec-time';tinp.placeholder='分';
+            tinp.value=rec.times[si]==null?'':rec.times[si];
+            tinp.dataset.idx=rIdx;tinp.dataset.si=si;
+            tinp.addEventListener('input',onSecTimeInput);
+            wrap.appendChild(tinp);
+          }
+          td.appendChild(wrap);tr.appendChild(td);
+        });
+        c.subtotals.forEach(function(sub){
+          var td=document.createElement('td');td.className='subtotal';td.textContent=fmt(sumOf(rec,sub.indices));tr.appendChild(td);
+        });
+        var ttd=document.createElement('td');ttd.className='total';ttd.textContent=fmt(totalOf(rec));tr.appendChild(ttd);
+        var timetd=document.createElement('td');
+        if(c.perSectionTime){
+          timetd.className='time-total';timetd.textContent=fmt(totalTime(rec));
+        }else{
+          var tinp=document.createElement('input');tinp.type='number';tinp.min=0;tinp.step=1;tinp.className='time';
+          tinp.value=rec.time==null?'':rec.time;tinp.dataset.idx=rIdx;
+          tinp.addEventListener('input',onTimeInput);
+          timetd.appendChild(tinp);
+        }
+        tr.appendChild(timetd);
+        var datetd=document.createElement('td');
+        var dinp=document.createElement('input');dinp.type='date';dinp.value=rec.date==null?'':rec.date;dinp.dataset.idx=rIdx;
+        dinp.addEventListener('input',onDateInput);
+        datetd.appendChild(dinp);tr.appendChild(datetd);
+        var ntd=document.createElement('td');ntd.className='note';
+        var note=document.createElement('input');note.type='text';note.value=rec.note;note.placeholder='—';note.dataset.idx=rIdx;
+        note.addEventListener('input',onNoteInput);
+        ntd.appendChild(note);tr.appendChild(ntd);
+        tbody.appendChild(tr);
+      });
+    });
+    applyFilter();
+  }
+
+  function onScoreInput(e){
+    var el=e.target;var idx=+el.dataset.idx,si=+el.dataset.si,full=+el.dataset.full;
+    var raw=el.value.trim();var num=raw===''?null:parseFloat(raw);
+    if(num!==null){if(isNaN(num))num=null;else{num=Math.min(Math.max(num,0),full);if(num!==parseFloat(raw))el.value=num;}}
+    records[idx].s[si]=num;
+    var tr=el.closest('tr');var c=cfg();
+    var subCells=tr.querySelectorAll('.subtotal');
+    c.subtotals.forEach(function(sub,i){subCells[i].textContent=fmt(sumOf(records[idx],sub.indices));});
+    updateTotal(tr.querySelector('.total'),records[idx]);
+    saveData();debounceRedraw();
+  }
+  function onNoteInput(e){records[+e.target.dataset.idx].note=e.target.value;saveData();}
+  function onTimeInput(e){
+    var el=e.target,idx=+el.dataset.idx;var raw=el.value.trim();
+    var t=raw===''?null:parseInt(raw,10);
+    if(t!==null){if(isNaN(t))t=null;else{t=Math.max(0,t);if(t!==parseInt(raw,10))el.value=t;}}
+    records[idx].time=t;saveData();
+  }
+  function onDateInput(e){records[+e.target.dataset.idx].date=e.target.value||null;saveData();}
+  function onSecTimeInput(e){
+    var el=e.target,idx=+el.dataset.idx,si=+el.dataset.si;var raw=el.value.trim();
+    var t=raw===''?null:parseInt(raw,10);
+    if(t!==null){if(isNaN(t))t=null;else{t=Math.max(0,t);if(t!==parseInt(raw,10))el.value=t;}}
+    records[idx].times[si]=t;
+    var tr=el.closest('tr');var tt=tr.querySelector('.time-total');
+    if(tt)tt.textContent=fmt(totalTime(records[idx]));
+    saveData();
+  }
+
+  function updateTotal(cell,rec){
+    var t=totalOf(rec),c=cfg();
+    cell.textContent=fmt(t);
+    cell.className='total'+(t===null?'':(t>=0.8*c.full?' good':(t>=0.6*c.full?' mid':' bad')));
+  }
+  function applyFilter(){
+    document.querySelectorAll('#tbody tr').forEach(function(tr){
+      tr.style.display=(currentFilter==='全部'||tr.dataset.round===currentFilter)?'':'none';
+    });
+  }
+
+  function roundData(round){
+    return activePapers().map(function(p){var ri=findRecord(p.id,round);return ri<0?null:totalOf(records[ri]);});
+  }
+  function roundValues(round,fn){
+    return activePapers().map(function(p){var ri=findRecord(p.id,round);return ri<0?null:fn(records[ri]);});
+  }
+  function plotDimensions(){
+    var c=cfg();
+    var dims=[{name:'总分',full:c.full,value:function(rec){return totalOf(rec);}}];
+    c.sections.forEach(function(s,si){dims.push({name:s.name,full:s.full,value:function(rec){return rec.s[si];}});});
+    c.subtotals.forEach(function(sub){dims.push({name:sub.name,full:sub.full,value:function(rec){return sumOf(rec,sub.indices);}});});
+    return dims;
+  }
+  function currentDimension(){
+    var v=document.getElementById('dimSelect').value;
+    var dims=plotDimensions();
+    for(var i=0;i<dims.length;i++)if(dims[i].name===v)return dims[i];
+    return dims[0];
+  }
+  function populateDimSelect(){
+    var sel=document.getElementById('dimSelect');sel.innerHTML='';
+    plotDimensions().forEach(function(d){var o=document.createElement('option');o.value=d.name;o.textContent=d.name+'（满分'+d.full+'）';sel.appendChild(o);});
+    sel.value='总分';
+  }
+  function avg(vals){var n=vals.filter(function(v){return v!=null;});if(!n.length)return null;return n.reduce(function(a,b){return a+b;},0)/n.length;}
+  // 已完成套数按「全部试卷」统计，不受「参与」勾选影响（作为总体进度）
+  function completedCount(){var n=0;papers.forEach(function(p){if(records.some(function(r){return r.paperId===p.id&&totalOf(r)!==null;}))n++;});return n;}
+
+  function updateStats(){
+    var avgs=ROUNDS.map(function(rd){return avg(roundData(rd));});
+    ROUNDS.forEach(function(rd,i){setStat('stat_avg_'+rd,avgs[i],false);});
+    for(var i=0;i+1<ROUNDS.length;i++){
+      setStat('stat_d'+i,(avgs[i]!=null&&avgs[i+1]!=null)?(avgs[i+1]-avgs[i]):null,true);
+    }
+    var done=document.getElementById('stat_done');
+    if(done)done.textContent=completedCount()+' / '+papers.length;
+  }
+  function setStat(id,val,isDelta){
+    var el=document.getElementById(id);
+    if(val===null){el.textContent='—';el.className='value';return;}
+    el.textContent=(isDelta&&val>0?'+':'')+(Number.isInteger(val)?val:val.toFixed(1));
+    el.className='value'+(isDelta?(val>0?' up':(val<0?' down':'')):'');
+  }
+
+  function ensureCharts(){
+    if(chart1)return true;
+    if(!window.echarts)return false;
+    chart1=echarts.init(document.getElementById('chart1'));
+    chart2=echarts.init(document.getElementById('chart2'));
+    window.addEventListener('resize',function(){chart1.resize();chart2.resize();});
+    return true;
+  }
+  function drawCharts(){
+    if(!ensureCharts())return;
+    var c=cfg();
+    var target=parseFloat(document.getElementById('targetInput').value);
+    if(isNaN(target))target=c.target;
+
+    var actIds={};activePapers().forEach(function(p){actIds[p.id]=true;});
+    var xLabels=activePapers().map(function(p){return p.name;});
+    var dim=currentDimension();
+    var series=ROUNDS.map(function(r){
+      return {name:r,type:'line',data:roundValues(r,dim.value),smooth:false,symbol:'circle',symbolSize:7,lineStyle:{width:2.5},connectNulls:false};
+    });
+    if(dim.name==='总分'){
+      series[0].markLine={symbol:'none',lineStyle:{type:'dashed',color:'#c0392b',width:1.5},label:{formatter:'目标 '+target,color:'#c0392b'},data:[{yAxis:target}]};
+    }
+    chart1.setOption({
+      color:ROUND_COLORS,tooltip:{trigger:'axis'},legend:{top:0,data:ROUNDS},
+      grid:{left:46,right:20,top:40,bottom:60},
+      xAxis:{type:'category',data:xLabels,name:'试卷',boundaryGap:false,axisLabel:{interval:0,rotate:xLabels.length>15?45:0}},
+      yAxis:{type:'value',min:0,max:dim.full,interval:Math.ceil(dim.full/10),name:dim.name},
+      series:series
+    },true);
+
+    var cats=c.sections.map(function(s){return s.name;});
+    var s2=ROUNDS.map(function(r){
+      return {name:r,type:'bar',barMaxWidth:28,
+        data:c.sections.map(function(sec,si){
+          var vals=[];records.forEach(function(rec){if(!actIds[rec.paperId])return;if(rec.round===r&&rec.s[si]!=null&&!isNaN(rec.s[si]))vals.push(rec.s[si]);});
+          return vals.length?+(vals.reduce(function(a,b){return a+b;},0)/vals.length/sec.full*100).toFixed(1):0;
+        })
+      };
+    });
+    chart2.setOption({
+      color:ROUND_COLORS,tooltip:{trigger:'axis',valueFormatter:function(v){return v+'%';}},legend:{top:0,data:ROUNDS},
+      grid:{left:46,right:20,top:40,bottom:60},
+      xAxis:{type:'category',data:cats,axisLabel:{interval:0,rotate:c.sections.length>5?30:0}},
+      yAxis:{type:'value',name:'得分率(%)',max:100,interval:20},
+      series:s2
+    },true);
+  }
+  function debounceRedraw(){clearTimeout(redrawTimer);redrawTimer=setTimeout(function(){updateStats();drawCharts();},150);}
+
+  function exportCSV(){
+    var c=cfg();
+    var head=['试卷','参与','刷次'].concat(c.sections.map(function(s){return s.name;}))
+      .concat(c.subtotals.map(function(s){return s.name;})).concat(['总分','时间(分)','日期','备注']);
+    var rows=[head];
+    papers.forEach(function(p){roundsOf(p.id).forEach(function(rd){
+      var ri=findRecord(p.id,rd);if(ri<0)return;var rec=records[ri];
+      var t=totalOf(rec);
+      rows.push([p.name,isPaperActive(p)?'是':'否',rd].concat(rec.s.map(function(v){return v==null?'':v;}))
+        .concat(c.subtotals.map(function(s){var x=sumOf(rec,s.indices);return x==null?'':x;}))
+        .concat([t==null?'':t,totalTime(rec)==null?'':totalTime(rec),rec.date==null?'':rec.date,rec.note]));
+    });});
+    var csv='﻿'+rows.map(function(r){return r.map(function(x){return '"'+String(x).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=c.name+'真题多刷记录.csv';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+  }
+
+  function parseCSV(text){
+    var rows=[],row=[],cur='',q=false;
+    for(var i=0;i<text.length;i++){
+      var ch=text[i];
+      if(q){
+        if(ch==='"'){if(i+1<text.length&&text[i+1]==='"'){cur+='"';i++;}else q=false;}
+        else cur+=ch;
+      }else{
+        if(ch==='"')q=true;
+        else if(ch===','){row.push(cur);cur='';}
+        else if(ch==='\n'){row.push(cur);rows.push(row);row=[];cur='';}
+        else if(ch==='\r'){}
+        else cur+=ch;
+      }
+    }
+    if(cur!==''||row.length){row.push(cur);rows.push(row);}
+    return rows;
+  }
+
+  function readTextAuto(file,cb){
+    var r=new FileReader();
+    r.onload=function(){
+      var t=String(r.result);
+      if(t.indexOf('\uFFFD')>=0&&typeof TextDecoder!=='undefined'){
+        var r2=new FileReader();
+        r2.onload=function(){try{cb(new TextDecoder('gbk').decode(r2.result));}catch(e){cb(t);}};
+        r2.onerror=function(){cb(t);};
+        r2.readAsArrayBuffer(file);
+      }else cb(t);
+    };
+    r.onerror=function(){cb('');};
+    r.readAsText(file,'utf-8');
+  }
+
+  function importCSV(text){
+    var c=cfg();
+    var rows=parseCSV(text);
+    if(rows.length<2){alert('CSV 内容为空或只有表头');return;}
+    var header=rows[0].map(function(h,i){h=String(h);return i===0?h.replace(/^﻿/,''):h;}).map(function(h){return h.trim();});
+    var col={};header.forEach(function(h,i){if(h)col[h]=i;});
+    if(col['试卷']===undefined||col['刷次']===undefined){alert('CSV 缺少「试卷」或「刷次」列，无法导入。\n请使用本工具导出的 CSV，或确保表头包含这两列。');return;}
+    if(!confirm('导入将把 CSV 中的分数写入，并覆盖同名试卷、同刷次的已有数据。\n确定继续？'))return;
+
+    var secCols=c.sections.map(function(s){return col[s.name];});
+    var timeCol=col['时间(分)'],dateCol=col['日期'],noteCol=col['备注'],activeCol=col['参与'];
+    var secMatched=secCols.filter(function(x){return x!==undefined;}).length;
+
+    var importedPapers=0,importedRows=0,skipped=0;
+    for(var ri=1;ri<rows.length;ri++){
+      var row=rows[ri];
+      if(row.length===0)continue;
+      var name=(row[col['试卷']]||'').trim();
+      var round=(row[col['刷次']]||'').trim();
+      // 只要刷次名称合法就导入（该套试卷会自动获得这个刷次），不会因为刷次名称而丢数据
+      if(!name||ROUND_NAMES.indexOf(round)<0){skipped++;continue;}
+      var paper=null;
+      for(var pi=0;pi<papers.length;pi++)if(papers[pi].name===name){paper=papers[pi];break;}
+      if(!paper){paper={id:genId(),name:name,active:true};papers.push(paper);importedPapers++;}
+      // 「参与」列存在且非空时才覆盖（旧版 CSV 没有该列，不影响原设置）
+      if(activeCol!==undefined){var av=(activeCol<row.length?row[activeCol]:'').trim();if(av){var al=av.toLowerCase();paper.active=!(av==='否'||av==='0'||av==='不参与'||al==='no'||al==='false');}}
+      var rIdx=findRecord(paper.id,round);
+      if(rIdx<0){rIdx=records.length;records.push(newRoundRecord(paper.id,round));}
+      var rec=records[rIdx];
+      secCols.forEach(function(ci,si){
+        if(ci===undefined)return;
+        var raw=(ci<row.length?row[ci]:'').trim();
+        if(raw==='')rec.s[si]=null;
+        else{var v=parseFloat(raw);rec.s[si]=isNaN(v)?null:Math.min(Math.max(v,0),c.sections[si].full);}
+      });
+      if(timeCol!==undefined){var tv=(timeCol<row.length?row[timeCol]:'').trim();rec.time=tv===''?null:Math.max(0,parseInt(tv,10)||0);}
+      if(dateCol!==undefined){var dv=(dateCol<row.length?row[dateCol]:'').trim();rec.date=dv||null;}
+      if(noteCol!==undefined){rec.note=(noteCol<row.length?row[noteCol]:'')||'';}
+      importedRows++;
+    }
+    saveData();refreshRoundsUI();
+    var msg='导入完成：'+importedRows+' 条记录，新增 '+importedPapers+' 套试卷'+(skipped?'，跳过 '+skipped+' 行':'')+'。';
+    if(secMatched===0)msg+='\n提示：CSV 题型列与当前科目不匹配，分数未导入（仅导入了试卷名/刷次/时间/日期/备注）。';
+    alert(msg);
+  }
+
+  // ===== 试卷管理：拖动排序 =====
+  var mgmtDragIndex=-1; // 正在拖动的行（-1 = 没有在拖）
+  function clearDropMarks(){
+    var l=document.getElementById('mgmtList');if(!l)return;
+    l.querySelectorAll('.drop-before,.drop-after,.drag-over').forEach(function(el){el.classList.remove('drop-before','drop-after','drag-over');});
+  }
+  // 把 from 位置的试卷移到 to 位置（其余顺延）
+  function reorderPaper(from,to){
+    if(from===to)return;
+    if(from<0||to<0||from>=papers.length||to>=papers.length)return;
+    var moved=papers.splice(from,1)[0];
+    papers.splice(to,0,moved);
+    afterChange();
+  }
+  function renderMgmtList(){
+    var list=document.getElementById('mgmtList');list.innerHTML='';
+    papers.forEach(function(p,i){
+      var div=document.createElement('div');div.className='mgmt-item draggable-row';
+      div.draggable=true; // 整行可拖，input / 按钮单独关掉，避免抢走拖动
+      var handle=document.createElement('span');handle.className='mgmt-handle';handle.textContent='⠿';handle.title='按住拖动排序';
+      div.appendChild(handle);
+      var lab=document.createElement('label');lab.className='mgmt-active';lab.title='勾选后该试卷参与均分统计与曲线图；取消勾选则不计入（分数仍可正常录入）';
+      var chk=document.createElement('input');chk.type='checkbox';chk.checked=isPaperActive(p);chk.draggable=false;
+      chk.addEventListener('change',function(){setPaperActive(p.id,chk.checked);});
+      lab.appendChild(chk);lab.appendChild(document.createTextNode('参与'));div.appendChild(lab);
+      var inp=document.createElement('input');inp.type='text';inp.className='mgmt-name';inp.value=p.name;inp.draggable=false;
+      inp.addEventListener('change',function(){renamePaper(p.id,inp.value);});
+      div.appendChild(inp);
+      var del=document.createElement('button');del.textContent='删除';del.className='danger';del.draggable=false;
+      del.addEventListener('click',function(){deletePaper(p.id);});div.appendChild(del);
+      list.appendChild(div);
+
+      div.addEventListener('dragstart',function(e){
+        mgmtDragIndex=i;
+        div.classList.add('dragging');
+        try{e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',String(i));}catch(err){}
+      });
+      div.addEventListener('dragend',function(){
+        div.classList.remove('dragging');
+        clearDropMarks();
+        mgmtDragIndex=-1;
+      });
+      div.addEventListener('dragover',function(e){
+        if(mgmtDragIndex<0)return;
+        e.preventDefault();
+        try{e.dataTransfer.dropEffect='move';}catch(err){}
+        var r=div.getBoundingClientRect();
+        var after=(e.clientY-r.top)>r.height/2; // 落在下半区 = 插到这一行后面
+        var to=i+(after?1:0);
+        if(to>mgmtDragIndex)to--; // 拖动行自己要先从数组里抽走，后面的位置前移一位
+        clearDropMarks();
+        if(to===mgmtDragIndex){div.classList.add('drag-over');return;} // 落点等于原位，不提示插入线
+        div.classList.add(after?'drop-after':'drop-before');
+      });
+      div.addEventListener('dragleave',function(e){
+        if(div.contains(e.relatedTarget))return;
+        div.classList.remove('drop-before','drop-after','drag-over');
+      });
+      div.addEventListener('drop',function(e){
+        e.preventDefault();
+        if(mgmtDragIndex<0)return;
+        var r=div.getBoundingClientRect();
+        var after=(e.clientY-r.top)>r.height/2;
+        var from=mgmtDragIndex,to=i+(after?1:0);
+        if(to>from)to--;
+        clearDropMarks();
+        mgmtDragIndex=-1;
+        if(from!==to)reorderPaper(from,to);
+      });
+    });
+    renderMgmtActiveBar();
+  }
+  // 顶部「全选 / 全不选」状态：参与计数 + 按钮可用性
+  function renderMgmtActiveBar(){
+    var act=papers.filter(isPaperActive).length;
+    var note=document.getElementById('mgmtActiveNote');
+    if(note)note.textContent='参与统计的试卷：'+act+' / '+papers.length+' 套';
+    var ba=document.getElementById('btnActiveAll'),bn=document.getElementById('btnActiveNone');
+    if(ba)ba.disabled=(!papers.length||act===papers.length);
+    if(bn)bn.disabled=(!papers.length||act===0);
+  }
+  function setPaperActive(id,v){
+    papers.forEach(function(p){if(p.id===id)p.active=!!v;});
+    afterChange();
+  }
+  // 一键把所有试卷设为参与 / 不参与
+  function setAllPapersActive(v){
+    if(!papers.length)return;
+    papers.forEach(function(p){p.active=!!v;});
+    afterChange();
+  }
+  function renamePaper(id,name){
+    name=(name||'').trim();if(!name){alert('名称不能为空');return;}
+    papers.forEach(function(p){if(p.id===id)p.name=name;});
+    afterChange();
+  }
+  function deletePaper(id){
+    if(!confirm('确定删除该试卷及其所有记录吗？'))return;
+    papers=papers.filter(function(p){return p.id!==id;});
+    records=records.filter(function(r){return r.paperId!==id;});
+    afterChange();
+  }
+  function afterChange(){saveData();refreshRoundsUI();renderMgmtList();}
+
+  function addPaper(){
+    var name=prompt('输入新试卷名称（如「2027真题」或「2026模拟一」）：','');
+    if(name===null)return;
+    name=name.trim();if(!name){alert('名称不能为空');return;}
+    if(papers.some(function(p){return p.name===name;})){alert('同名试卷已存在');return;}
+    var c=cfg();var id=genId();
+    papers.unshift({id:id,name:name,active:true}); // 新试卷排在最前面（顺序可在「试卷管理」里拖动调整）
+    records.push(newRoundRecord(id,'一刷')); // 新试卷默认只有「一刷」
+    afterChange();
+  }
+
+  function showSubject(id){
+    currentSubject=id;var c=cfg();
+    document.getElementById('home').style.display='none';
+    document.getElementById('plan').style.display='none';
+    document.getElementById('subject').style.display='block';
+    document.getElementById('subTitle').textContent=c.name+' 真题多刷记录';
+    var savedAccent=localStorage.getItem('kaoyan_accent_'+id);
+    var accent=savedAccent||c.accent;
+    document.getElementById('subject').style.setProperty('--accent',accent);
+    document.getElementById('subTitle').style.color=accent;
+    document.getElementById('colorInput').value=accent;
+    populateDimSelect();
+    document.getElementById('subFooter').textContent=c.footer;
+    var savedTarget=localStorage.getItem(targetKey());
+    document.getElementById('targetInput').value=(savedTarget==null?c.target:savedTarget);
+    currentFilter='全部';
+    loadData();
+    refreshRoundsUI();
+    if(ensureCharts()){requestAnimationFrame(function(){chart1.resize();chart2.resize();drawCharts();});}
+  }
+  function showHome(){document.getElementById('subject').style.display='none';document.getElementById('plan').style.display='none';document.getElementById('home').style.display='block';applyAccents();renderTodayPlan();}
+  function backupAll(){
+    var data={};
+    Object.keys(CONFIG).forEach(function(id){
+      data['kaoyan_'+id+'_v1']=localStorage.getItem('kaoyan_'+id+'_v1');
+      data['kaoyan_target_'+id]=localStorage.getItem('kaoyan_target_'+id);
+      data['kaoyan_accent_'+id]=localStorage.getItem('kaoyan_accent_'+id);
+    });
+    data['kaoyan_plan_v1']=localStorage.getItem('kaoyan_plan_v1');
+    data['kaoyan_countdown_v1']=localStorage.getItem('kaoyan_countdown_v1');
+    var payload={app:'kaoyan-multi-brush',v:1,time:dateToStr(new Date()),data:data};
+    var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='考研数据备份_'+dateToStr(new Date())+'.json';
+    document.body.appendChild(a);a.click();a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
+  }
+  function restoreAll(text){
+    var d;
+    try{d=JSON.parse(text);}catch(e){alert('恢复失败：文件不是有效的 JSON');return;}
+    if(!d||d.app!=='kaoyan-multi-brush'||!d.data){alert('恢复失败：这不是本工具的一键备份文件');return;}
+    var n=0;
+    Object.keys(d.data).forEach(function(k){
+      if(/^kaoyan_/.test(k)&&d.data[k]!=null){localStorage.setItem(k,d.data[k]);n++;}
+    });
+    alert('恢复成功：已写入 '+n+' 项数据，即将刷新页面');
+    location.reload();
+  }
+  function applyAccents(){
+    document.querySelectorAll('.subject-card').forEach(function(card){
+      var id=card.dataset.sub;
+      if(!id||!CONFIG[id])return;
+      var saved=localStorage.getItem('kaoyan_accent_'+id);
+      card.style.setProperty('--accent',saved||CONFIG[id].accent);
+    });
+  }
+
+  var COUNTDOWN_KEY='kaoyan_countdown_v1';
+  function loadCountdown(){
+    try{
+      var d=JSON.parse(localStorage.getItem(COUNTDOWN_KEY));
+      if(d&&typeof d==='object')return {name:String(d.name||''),date:String(d.date||'')};
+    }catch(e){}
+    return {name:'考研初试',date:''};
+  }
+  function renderCountdown(){
+    var d=loadCountdown();
+    var card=document.getElementById('countdownCard');
+    document.getElementById('cdName').textContent=d.name||'考研初试';
+    var num=document.getElementById('cdNum'),unit=document.getElementById('cdUnit');
+    num.classList.remove('small');
+    card.classList.remove('urgent');
+    var target=d.date?strToDate(d.date):null;
+    if(!target){
+      document.getElementById('cdDate').textContent='点击「✎ 编辑」设置考试日期';
+      num.textContent='—';unit.textContent='天';
+      return;
+    }
+    var wk='日一二三四五六'[target.getDay()];
+    document.getElementById('cdDate').textContent=target.getFullYear()+'年'+(target.getMonth()+1)+'月'+target.getDate()+'日 · 周'+wk;
+    target.setHours(0,0,0,0);
+    var today=new Date();today.setHours(0,0,0,0);
+    var diff=Math.round((target-today)/86400000);
+    if(diff>0){
+      num.textContent=diff;unit.textContent='天';
+      if(diff<30)card.classList.add('urgent');
+    }else if(diff===0){
+      num.textContent='今天';num.classList.add('small');unit.textContent='考试日';
+      card.classList.add('urgent');
+    }else{
+      num.textContent=(-diff);num.classList.add('small');unit.textContent='天已过';
+    }
+  }
+  function openCountdownModal(){
+    var d=loadCountdown();
+    document.getElementById('cdInputName').value=d.name;
+    document.getElementById('cdInputDate').value=d.date;
+    document.getElementById('countdownModal').style.display='flex';
+  }
+  function saveCountdown(){
+    var name=document.getElementById('cdInputName').value.trim();
+    var date=document.getElementById('cdInputDate').value.trim();
+    localStorage.setItem(COUNTDOWN_KEY,JSON.stringify({name:name,date:date}));
+    renderCountdown();
+    document.getElementById('countdownModal').style.display='none';
+  }
+
+  function loadECharts(urls,cb){
+    if(window.echarts){cb();return;}
+    if(!urls.length){showCDNError();return;}
+    var s=document.createElement('script');s.src=urls[0];
+    s.onload=function(){if(window.echarts)cb();else showCDNError();};
+    s.onerror=function(){loadECharts(urls.slice(1),cb);};
+    document.head.appendChild(s);
+  }
+  function showCDNError(){
+    document.getElementById('chart1').innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;">图表库加载失败，请联网后刷新页面。</div>';
+    document.getElementById('chart2').innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;">图表库加载失败，请联网后刷新页面。</div>';
+  }
+
+  // ===== 总结与计划 =====
+  var SUBJECTS=['数学一','408','英语一','政治'];
+  var PLAN_LEVELS=[{key:'day',label:'每日'},{key:'week',label:'每周'},{key:'halfmonth',label:'每半月'},{key:'month',label:'每月'}];
+  var planData={day:[],week:[],halfmonth:[],month:[]};
+  var currentLevel='day';
+  var currentType='plan';
+  var planEditingId=null;
+  var planEditPlanId=null;   // 「二者合一」视图编辑时，计划侧对应记录 id（null=新建）
+  var planEditSummaryId=null; // 「二者合一」视图编辑时，总结侧对应记录 id（null=新建）
+  function pad2(n){return n<10?'0'+n:''+n;}
+  function dateToStr(d){return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate());}
+  function strToDate(s){var p=String(s||'').split('-');if(p.length<3)return null;return new Date(+p[0],+p[1]-1,+p[2]);}
+  function fmtRange(start,end){
+    if(start&&end){
+      var a=strToDate(start),b=strToDate(end);
+      if(a&&b){
+        var s=(a.getMonth()+1)+'月'+a.getDate()+'日';
+        var e=(b.getMonth()+1)+'月'+b.getDate()+'日';
+        if(s===e)return s;
+        if(a.getFullYear()!==b.getFullYear())return a.getFullYear()+'年'+s+' 至 '+b.getFullYear()+'年'+e;
+        return s+' 至 '+e;
+      }
+    }
+    return '';
+  }
+  function dateRangeFor(level){
+    var d=new Date(),y=d.getFullYear(),m=d.getMonth(),day=d.getDate(),start,end;
+    if(level==='day'){start=new Date(y,m,day);end=new Date(y,m,day);}
+    else if(level==='week'){var dow=d.getDay()||7;start=new Date(y,m,day-dow+1);end=new Date(y,m,day-dow+7);}
+    else if(level==='halfmonth'){if(day<=15){start=new Date(y,m,1);end=new Date(y,m,15);}else{start=new Date(y,m,16);end=new Date(y,m+1,0);}}
+    else{start=new Date(y,m,1);end=new Date(y,m+1,0);}
+    return {start:dateToStr(start),end:dateToStr(end)};
+  }
+  // 弹窗内字段上下键导航：到边缘时跳转到上一个/下一个部分
+  function setupPlanFieldNav(){
+    var fields=['planStart','planEnd','planOverall','planSub_数学一','planSub_408','planSub_英语一','planSub_政治','planPlanOverall','planSubPlan_数学一','planSubPlan_408','planSubPlan_英语一','planSubPlan_政治'];
+    function focusAt(el,dir){
+      if(el.tagName==='TEXTAREA'){
+        var len=el.value.length;
+        el.focus();
+        el.setSelectionRange(dir>0?len:0,dir>0?len:0);
+      }else el.focus();
+    }
+    function move(from,dir){
+      var i=from+dir;
+      while(i>=0&&i<fields.length){
+        var el=document.getElementById(fields[i]);
+        if(el&&el.offsetParent!==null){
+          focusAt(el,dir);return;
+        }
+        i+=dir;
+      }
+    }
+    fields.forEach(function(id,idx){
+      var el=document.getElementById(id);
+      el.addEventListener('keydown',function(e){
+        if(e.key!=='ArrowUp'&&e.key!=='ArrowDown')return;
+        var dir=e.key==='ArrowUp'?-1:1,atEdge=false;
+        if(el.tagName==='TEXTAREA'){
+          var sp=el.selectionStart;
+          atEdge=dir<0?(sp<=0):(sp>=el.value.length);
+        }else{
+          atEdge=true; // 日期框：无行概念，视为始终在边缘
+        }
+        if(atEdge){e.preventDefault();move(idx,dir);}
+      });
+    });
+  }
+  // 弹窗拖动：按住标题栏可移动弹窗位置
+  function setupPlanModalDrag(){
+    var modal=document.getElementById('planModal');
+    if(!modal)return;
+    var box=modal.querySelector('.modal-box');
+    var head=modal.querySelector('.modal-head');
+    if(!box||!head)return;
+    var dragging=false,sx=0,sy=0,ox=0,oy=0;
+    head.addEventListener('mousedown',function(e){
+      if(e.target.classList&&e.target.classList.contains('close'))return; // 关闭按钮不触发拖动
+      e.preventDefault();
+      var r=box.getBoundingClientRect();
+      box.style.left=r.left+'px';box.style.top=r.top+'px';
+      box.style.transform='none'; // 把居中的 transform 换算成 left/top，保持原位再拖动
+      dragging=true;sx=e.clientX;sy=e.clientY;ox=r.left;oy=r.top;
+    });
+    document.addEventListener('mousemove',function(e){
+      if(!dragging)return;
+      box.style.left=(ox+e.clientX-sx)+'px';
+      box.style.top=(oy+e.clientY-sy)+'px';
+    });
+    document.addEventListener('mouseup',function(){dragging=false;});
+  }
+  // 根据开始日期 + 周期，自动计算结束日期（修改开始日期时同步结束日期）
+  function snapEnd(level,start){
+    if(!start)return '';
+    var d=strToDate(start);if(!d)return '';
+    var y=d.getFullYear(),m=d.getMonth(),day=d.getDate();
+    if(level==='day')return start;
+    if(level==='week')return dateToStr(new Date(y,m,day+6));
+    if(level==='halfmonth')return dateToStr(new Date(y,m,day<=15?15:new Date(y,m+1,0).getDate()));
+    return dateToStr(new Date(y,m+1,0));
+  }
+  function levelLabel(level){for(var i=0;i<PLAN_LEVELS.length;i++)if(PLAN_LEVELS[i].key===level)return PLAN_LEVELS[i].label;return '';}
+  function typeLabel(t){if(t==='summary')return '总结';if(t==='combined')return '二者合一';return '计划';}
+  function loadPlan(){
+    try{
+      var d=JSON.parse(localStorage.getItem('kaoyan_plan_v1'));
+      if(d){
+        var migrated=false;
+        PLAN_LEVELS.forEach(function(l){
+          var arr=d[l.key];
+          if(!Array.isArray(arr))return;
+          var out=[];
+          arr.forEach(function(en){
+            if(!en)return;
+            if(en.type==='combined'){
+              // 旧「二者合一」记录 → 拆成独立的「总结」「计划」两条（二者合一只是视图，不是单独类型）
+              migrated=true;
+              var base=en.id||('c'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+              var hasText=function(o){for(var k in o)if(o[k])return true;return false;};
+              if(en.overall||hasText(en.subs))out.push({id:base+'_s',type:'summary',start:en.start||'',end:en.end||'',period:en.period||'',overall:en.overall||'',subs:en.subs||{}});
+              if(en.planOverall||hasText(en.planSubs))out.push({id:base+'_p',type:'plan',start:en.start||'',end:en.end||'',period:en.period||'',overall:en.planOverall||'',subs:en.planSubs||{}});
+              return;
+            }
+            if(en.type&&en.subs){out.push(en);return;} // 新格式 {id,type,start,end,period,subs:{科目:文本}}
+            // 旧格式 {id,period,plan,summary,subjects:[]} → 迁移为独立的「计划」「总结」两条
+            migrated=true;
+            var subs=(en.subjects&&en.subjects.length)?en.subjects:SUBJECTS.slice();
+            var baseId=en.id||('m'+Date.now().toString(36)+Math.random().toString(36).slice(2,6));
+            if(en.plan){var o={};subs.forEach(function(s){o[s]=en.plan;});out.push({id:baseId+'_p',type:'plan',start:'',end:'',period:en.period||'',subs:o});}
+            if(en.summary){var o2={};subs.forEach(function(s){o2[s]=en.summary;});out.push({id:baseId+'_s',type:'summary',start:'',end:'',period:en.period||'',subs:o2});}
+          });
+          planData[l.key]=out;
+        });
+        if(migrated)savePlan();
+      }
+    }catch(e){}
+  }
+  function savePlan(){try{localStorage.setItem('kaoyan_plan_v1',JSON.stringify(planData));}catch(e){}}
+  function findPlanEntry(id){var a=planData[currentLevel];for(var i=0;i<a.length;i++)if(a[i].id===id)return a[i];return null;}
+  function addSection(div,label,text){
+    var s=document.createElement('div');s.className='plan-section';
+    var b=document.createElement('b');b.textContent=label+'：';s.appendChild(b);
+    s.appendChild(document.createTextNode(text));
+    div.appendChild(s);
+  }
+  function renderPlan(){
+    var list=document.getElementById('planList');list.innerHTML='';
+    var arr=planData[currentLevel]||[];
+    if(currentType==='combined'){
+      // 「二者合一」是视图：把总结与计划放在一起显示，数据仍是独立的 plan/summary 记录
+      var order=[];var map={};
+      arr.forEach(function(en){
+        var key=en.start||('~'+en.id);
+        if(!map[key]){map[key]={start:en.start||'',end:en.end||'',period:en.period||'',plan:null,summary:null};order.push(key);}
+        if(en.type==='plan')map[key].plan=en;
+        else if(en.type==='summary')map[key].summary=en;
+      });
+      order.sort(function(a,b){
+        var ga=map[a],gb=map[b];
+        if(ga.start&&gb.start){
+          if(ga.start!==gb.start)return gb.start<ga.start?-1:1; // 开始日期倒序：最新在上
+          if(ga.end!==gb.end)return gb.end<ga.end?-1:1;
+          return 0;
+        }
+        if(ga.start&&!gb.start)return -1;
+        if(!ga.start&&gb.start)return 1;
+        return 0;
+      });
+      if(!order.length){
+        var e=document.createElement('div');e.className='plan-empty';
+        e.textContent='暂无总结与计划，点击右上角「＋ 添加」开始记录';
+        list.appendChild(e);return;
+      }
+      order.forEach(function(key){
+        var g=map[key];
+        var div=document.createElement('div');div.className='plan-item';
+        var head=document.createElement('div');head.className='plan-item-head';
+        var pr=document.createElement('span');pr.className='plan-period';pr.textContent=fmtRange(g.start,g.end)||g.period||'(未设置日期)';head.appendChild(pr);
+        var acts=document.createElement('span');acts.className='plan-actions';
+        var editId=(g.plan?g.plan.id:null)||(g.summary?g.summary.id:null);
+        var eb=document.createElement('button');eb.textContent='编辑';eb.addEventListener('click',function(){openPlanModal(editId);});acts.appendChild(eb);
+        var db=document.createElement('button');db.textContent='删除';db.className='danger';db.addEventListener('click',function(){
+          if(confirm('删除这条记录？')){
+            var ids={};
+            if(g.plan)ids[g.plan.id]=1;
+            if(g.summary)ids[g.summary.id]=1;
+            planData[currentLevel]=planData[currentLevel].filter(function(x){return !ids[x.id];});
+            savePlan();renderPlan();renderTodayPlan();
+          }
+        });acts.appendChild(db);
+        head.appendChild(acts);div.appendChild(head);
+        if(g.plan&&g.summary){
+          // 同一范围总结+计划都有：左总结右计划两列
+          var tw=document.createElement('div');tw.className='plan-2col';
+          var c1=document.createElement('div');c1.className='col';
+          var t1=document.createElement('div');t1.className='plan-col-title';t1.textContent='总结';c1.appendChild(t1);
+          if(g.summary.overall)addSection(c1,'总体',g.summary.overall);
+          SUBJECTS.forEach(function(s){if(g.summary.subs&&g.summary.subs[s])addSection(c1,s,g.summary.subs[s]);});
+          tw.appendChild(c1);
+          var c2=document.createElement('div');c2.className='col';
+          var t2=document.createElement('div');t2.className='plan-col-title';t2.textContent='计划';c2.appendChild(t2);
+          if(g.plan.overall)addSection(c2,'总体',g.plan.overall);
+          SUBJECTS.forEach(function(s){if(g.plan.subs&&g.plan.subs[s])addSection(c2,s,g.plan.subs[s]);});
+          tw.appendChild(c2);
+          div.appendChild(tw);
+        }else{
+          // 只有总结或只有计划：单列显示
+          var single=g.plan||g.summary;
+          if(single.overall)addSection(div,'总体',single.overall);
+          SUBJECTS.forEach(function(s){if(single.subs&&single.subs[s])addSection(div,s,single.subs[s]);});
+        }
+        list.appendChild(div);
+      });
+      return;
+    }
+    var arr2=arr.filter(function(en){return en.type===currentType;});
+    arr2.sort(function(a,b){
+      var sa=a.start||'',sb=b.start||'';
+      if(sa&&sb){
+        if(sa!==sb)return sb<sa?-1:1; // 开始日期倒序：最新在上
+        var ea=a.end||'',eb=b.end||'';
+        if(ea!==eb)return eb<ea?-1:1;
+        return 0;
+      }
+      if(sa&&!sb)return -1; // 有日期的排前面
+      if(!sa&&sb)return 1;
+      return 0;
+    });
+    if(!arr2.length){
+      var e2=document.createElement('div');e2.className='plan-empty';
+      e2.textContent='暂无'+typeLabel(currentType)+'，点击右上角「＋ 添加」开始记录';
+      list.appendChild(e2);return;
+    }
+    arr2.forEach(function(en){
+      var div=document.createElement('div');div.className='plan-item';
+      var head=document.createElement('div');head.className='plan-item-head';
+      var pr=document.createElement('span');pr.className='plan-period';pr.textContent=fmtRange(en.start,en.end)||en.period||'(未设置日期)';head.appendChild(pr);
+      var acts=document.createElement('span');acts.className='plan-actions';
+      var eb=document.createElement('button');eb.textContent='编辑';eb.addEventListener('click',function(){openPlanModal(en.id);});acts.appendChild(eb);
+      var db=document.createElement('button');db.textContent='删除';db.className='danger';db.addEventListener('click',function(){if(confirm('删除这条记录？')){planData[currentLevel]=planData[currentLevel].filter(function(x){return x.id!==en.id;});savePlan();renderPlan();renderTodayPlan();}});acts.appendChild(db);
+      head.appendChild(acts);div.appendChild(head);
+      if(en.overall)addSection(div,'总体',en.overall);
+      SUBJECTS.forEach(function(s){
+        if(en.subs&&en.subs[s])addSection(div,s,en.subs[s]);
+      });
+      list.appendChild(div);
+    });
+  }
+  function findPair(en){
+    // 找同一范围（同开始日）的另一类型记录：plan ↔ summary
+    if(!en||!en.start)return null;
+    var want=en.type==='plan'?'summary':'plan';
+    var a=planData[currentLevel]||[];
+    for(var i=0;i<a.length;i++)if(a[i].type===want&&a[i].start===en.start)return a[i];
+    return null;
+  }
+  function openPlanModal(id){
+    planEditingId=id||null;
+    var en=id?findPlanEntry(id):null;
+    var title=document.getElementById('planModalTitle');
+    var msg=document.getElementById('planRangeMsg');
+    var isCombinedView=(currentType==='combined');
+    // 左右两列分别对应哪条记录（数据是独立的 plan/summary 记录）
+    var pl=null,sm=null;
+    if(en){
+      if(isCombinedView){
+        // 二者合一视图：编辑其中一条时，自动带上同范围另一条
+        if(en.type==='plan'){pl=en;sm=findPair(en);}
+        else{sm=en;pl=findPair(en);}
+      }else{
+        // 单列视图（计划 / 总结）：内容统一填到左侧可见字段
+        sm=en;
+      }
+    }
+    planEditPlanId=pl?pl.id:null;
+    planEditSummaryId=sm?sm.id:null;
+    if(en){
+      title.textContent='编辑'+typeLabel(en.type)+'（'+levelLabel(currentLevel)+'）';
+      document.getElementById('planStart').value=en.start||'';
+      document.getElementById('planEnd').value=en.end||'';
+      if(msg)msg.textContent='修改开始日期时，结束日期会自动按「'+levelLabel(currentLevel)+'」补齐；也可手动改结束日期';
+    }else{
+      var r=dateRangeFor(currentLevel);
+      document.getElementById('planStart').value=r.start;
+      document.getElementById('planEnd').value=r.end;
+      if(isCombinedView)title.textContent='添加总结与计划（'+levelLabel(currentLevel)+'）';
+      else title.textContent='添加'+typeLabel(currentType)+'（'+levelLabel(currentLevel)+'）';
+      if(msg)msg.textContent='已按「'+levelLabel(currentLevel)+'」自动生成；修改开始日期会同步计算结束日期';
+    }
+    document.getElementById('planCols').classList.toggle('plan-2col',isCombinedView);
+    document.getElementById('planCol').style.display=isCombinedView?'block':'none';
+    document.getElementById('summaryColTitle').style.display=isCombinedView?'block':'none';
+    SUBJECTS.forEach(function(s){
+      document.getElementById('planSub_'+s).value=sm?(sm.subs&&sm.subs[s])||'':'';
+      document.getElementById('planSubPlan_'+s).value=pl?(pl.subs&&pl.subs[s])||'':'';
+    });
+    document.getElementById('planOverallField').style.display='block';
+    document.getElementById('planOverall').value=sm?(sm.overall||''):'';
+    document.getElementById('planPlanOverall').value=pl?(pl.overall||''):'';
+    // 每次打开都复位到屏幕居中（可拖动弹窗）
+    var box=document.querySelector('#planModal .modal-box');
+    if(box){box.style.left='50%';box.style.top='50%';box.style.transform='translate(-50%,-50%)';}
+    document.getElementById('planModal').style.display='flex';
+    document.getElementById('planModalBody').scrollTop=0;  // 先显示再重置滚动，否则 display:none 时赋值无效
+  }
+  function savePlanEntry(){
+    var start=document.getElementById('planStart').value.trim();
+    var end=document.getElementById('planEnd').value.trim();
+    var overall=document.getElementById('planOverall').value.trim();
+    var subs={};
+    SUBJECTS.forEach(function(s){
+      var v=document.getElementById('planSub_'+s).value.trim();
+      if(v)subs[s]=v;
+    });
+    var planOverall=document.getElementById('planPlanOverall').value.trim();
+    var planSubs={};
+    SUBJECTS.forEach(function(s){
+      var v=document.getElementById('planSubPlan_'+s).value.trim();
+      if(v)planSubs[s]=v;
+    });
+    var hasSum=overall||Object.keys(subs).length;
+    var hasPlan=planOverall||Object.keys(planSubs).length;
+    if(!start&&!end&&!hasSum&&!hasPlan){alert('请至少填写一项内容');return;}
+    if(currentType==='combined'){
+      // 二者合一视图：总结、计划分别存为独立的记录（同范围）；一侧为空则删除原对应记录
+      if(hasSum){
+        if(planEditSummaryId){
+          var sEn=findPlanEntry(planEditSummaryId);
+          if(sEn){sEn.start=start;sEn.end=end;sEn.period='';sEn.overall=overall;sEn.subs=subs;}
+        }else{
+          planData[currentLevel].push({id:genId(),type:'summary',start:start,end:end,period:'',overall:overall,subs:subs});
+        }
+      }else if(planEditSummaryId){
+        planData[currentLevel]=planData[currentLevel].filter(function(x){return x.id!==planEditSummaryId;});
+      }
+      if(hasPlan){
+        if(planEditPlanId){
+          var pEn=findPlanEntry(planEditPlanId);
+          if(pEn){pEn.start=start;pEn.end=end;pEn.period='';pEn.overall=planOverall;pEn.subs=planSubs;}
+        }else{
+          planData[currentLevel].push({id:genId(),type:'plan',start:start,end:end,period:'',overall:planOverall,subs:planSubs});
+        }
+      }else if(planEditPlanId){
+        planData[currentLevel]=planData[currentLevel].filter(function(x){return x.id!==planEditPlanId;});
+      }
+    }else{
+      var curType=planEditingId?((findPlanEntry(planEditingId)||{}).type||currentType):currentType;
+      if(planEditingId){
+        var en=findPlanEntry(planEditingId);
+        if(en){en.start=start;en.end=end;en.subs=subs;en.period='';en.overall=overall;}
+      }else{
+        planData[currentLevel].push({id:genId(),type:curType,start:start,end:end,period:'',subs:subs,overall:overall});
+      }
+    }
+    savePlan();renderPlan();renderTodayPlan();
+    document.getElementById('planModal').style.display='none';
+  }
+  function setPlanTab(level){
+    currentLevel=level;
+    document.querySelectorAll('.plan-tab').forEach(function(b){b.classList.toggle('active',b.dataset.level===level);});
+    renderPlan();
+  }
+  function setPlanType(type){
+    currentType=type;
+    document.querySelectorAll('.plan-type').forEach(function(b){b.classList.toggle('active',b.dataset.type===type);});
+    renderPlan();
+  }
+  function rangeDays(en){
+    var a=strToDate(en.start),b=strToDate(en.end);
+    if(!a||!b)return 0;
+    return Math.round((b-a)/86400000);
+  }
+  function renderTodayPlan(){
+    var today=dateToStr(new Date());
+    var hits=[];
+    PLAN_LEVELS.forEach(function(l){
+      (planData[l.key]||[]).forEach(function(en){
+        if(en.type!=='plan'||!en.start||!en.end)return;
+        if(today>=en.start&&today<=en.end)hits.push({label:levelLabel(l.key),en:en});
+      });
+    });
+    var card=document.getElementById('todayPlanCard');
+    var list=document.getElementById('todayPlanList');
+    if(!card||!list)return;
+    if(!hits.length){card.style.display='none';list.innerHTML='';return;}
+    card.style.display='block';
+    list.innerHTML='';
+    hits.sort(function(a,b){
+      var da=rangeDays(a.en),db=rangeDays(b.en);
+      if(da!==db)return da-db;
+      return a.en.start<b.en.start?-1:1;
+    });
+    hits.forEach(function(h){
+      var div=document.createElement('div');div.className='today-item';
+      var hd=document.createElement('div');hd.className='today-item-head';
+      var lv=document.createElement('span');lv.className='today-level';lv.textContent=h.label;
+      var rg=document.createElement('span');rg.className='today-range';rg.textContent=fmtRange(h.en.start,h.en.end);
+      hd.appendChild(lv);hd.appendChild(rg);div.appendChild(hd);
+      var planOverall=h.en.overall;
+      var planSubs=h.en.subs;
+      if(planOverall){
+        var to=document.createElement('div');to.className='today-sub';
+        var tb=document.createElement('b');tb.textContent='总体：';to.appendChild(tb);
+        to.appendChild(document.createTextNode(planOverall));
+        div.appendChild(to);
+      }
+      SUBJECTS.forEach(function(s){
+        if(planSubs&&planSubs[s]){
+          var t=document.createElement('div');t.className='today-sub';
+          var b=document.createElement('b');b.textContent=s+'：';t.appendChild(b);
+          t.appendChild(document.createTextNode(planSubs[s]));
+          div.appendChild(t);
+        }
+      });
+      list.appendChild(div);
+    });
+    renderReminder(); // 首页数据变化时同步刷新「总结与计划提醒」
+  }
+  function exportPlan(){
+    var blob=new Blob([JSON.stringify(planData,null,2)],{type:'application/json'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download='考研总结与计划_'+dateToStr(new Date())+'.json';
+    document.body.appendChild(a);a.click();
+    setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
+  }
+  function importPlan(text){
+    var d;
+    try{d=JSON.parse(text);}catch(e){alert('导入失败：文件不是有效的 JSON 格式');return;}
+    if(!d||typeof d!=='object'){alert('导入失败：文件缺少数据内容');return;}
+    var bad=false;
+    PLAN_LEVELS.forEach(function(l){if(!Array.isArray(d[l.key]))bad=true;});
+    if(bad){alert('导入失败：这不是本工具导出的「总结与计划」文件');return;}
+    var cleaned={day:[],week:[],halfmonth:[],month:[]};
+    PLAN_LEVELS.forEach(function(l){
+      cleaned[l.key]=[];
+      d[l.key].forEach(function(en){
+        if(!en||typeof en!=='object'||!en.subs||typeof en.subs!=='object')return;
+        if(en.type==='combined'){
+          // 旧版「二者合一」记录 → 拆成独立的「总结」「计划」两条（二者合一现在是视图，不再是单独类型）
+          var base=en.id||genId();
+          var hasText=function(o){for(var k in o)if(o[k])return true;return false;};
+          if(en.overall||hasText(en.subs))cleaned[l.key].push({id:base+'_s',type:'summary',start:en.start||'',end:en.end||'',period:en.period||'',overall:en.overall||'',subs:en.subs||{}});
+          if(en.planOverall||hasText(en.planSubs))cleaned[l.key].push({id:base+'_p',type:'plan',start:en.start||'',end:en.end||'',period:en.period||'',overall:en.planOverall||'',subs:en.planSubs||{}});
+          return;
+        }
+        if(en.type==='plan'||en.type==='summary'){
+          cleaned[l.key].push({id:en.id||genId(),type:en.type,start:en.start||'',end:en.end||'',period:en.period||'',overall:en.overall||'',subs:en.subs||{}});
+        }
+      });
+    });
+    planData=cleaned;
+    savePlan();renderPlan();renderTodayPlan();
+    alert('导入成功：共 '+(cleaned.day.length+cleaned.week.length+cleaned.halfmonth.length+cleaned.month.length)+' 条记录');
+  }
+  function exportPlanCSV(){
+    var head=['类型','时间维度','开始日期','结束日期','时间段','总体','数学一','408','英语一','政治'];
+    var rows=[head];
+    PLAN_LEVELS.forEach(function(l){
+      (planData[l.key]||[]).forEach(function(en){
+        rows.push([
+          en.type==='summary'?'总结':'计划',l.label,
+          en.start||'',en.end||'',en.period||'',en.overall||'',
+          (en.subs&&en.subs['数学一'])||'',
+          (en.subs&&en.subs['408'])||'',
+          (en.subs&&en.subs['英语一'])||'',
+          (en.subs&&en.subs['政治'])||''
+        ]);
+      });
+    });
+    var csv='﻿'+rows.map(function(r){return r.map(function(x){return '"'+String(x).replace(/"/g,'""')+'"';}).join(',');}).join('\r\n');
+    var blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='考研总结与计划_'+dateToStr(new Date())+'.csv';
+    document.body.appendChild(a);a.click();document.body.removeChild(a);URL.revokeObjectURL(a.href);
+  }
+  function importPlanCSV(text){
+    var rows=parseCSV(text);
+    if(rows.length<2){alert('CSV 内容为空或只有表头');return;}
+    var header=rows[0].map(function(h,i){h=String(h);return i===0?h.replace(/^﻿/,''):h;}).map(function(h){return h.trim();});
+    var col={};header.forEach(function(h,i){if(h)col[h]=i;});
+    if(col['类型']===undefined||col['时间维度']===undefined){alert('CSV 缺少「类型」或「时间维度」列，无法导入。\n请使用本工具导出的 CSV。');return;}
+    var levelMap={'每日':'day','每周':'week','每半月':'halfmonth','每月':'month'};
+    var typeMap={'计划':'plan','总结':'summary'};
+    var cleaned={day:[],week:[],halfmonth:[],month:[]};
+    var cnt=0;
+    for(var ri=1;ri<rows.length;ri++){
+      var row=rows[ri];
+      var typeStr=row[col['类型']]||'';
+      var levelStr=row[col['时间维度']]||'';
+      var type=typeMap[typeStr.trim()];
+      var level=levelMap[levelStr.trim()];
+      if(!type||!level)continue;
+      var subs={};
+      SUBJECTS.forEach(function(s){
+        var ci=col[s];
+        var v=(ci!==undefined&&ci<row.length?row[ci]:'').trim();
+        if(v)subs[s]=v;
+      });
+      cleaned[level].push({
+        id:genId(),type:type,
+        start:(col['开始日期']!==undefined&&col['开始日期']<row.length)?String(row[col['开始日期']]).trim():'',
+        end:(col['结束日期']!==undefined&&col['结束日期']<row.length)?String(row[col['结束日期']]).trim():'',
+        period:(col['时间段']!==undefined&&col['时间段']<row.length)?String(row[col['时间段']]).trim():'',
+        overall:(col['总体']!==undefined&&col['总体']<row.length)?String(row[col['总体']]).trim():'',
+        subs:subs
+      });
+      cnt++;
+    }
+    if(!cnt){alert('没有可导入的记录');return;}
+    planData=cleaned;
+    savePlan();renderPlan();renderTodayPlan();
+    alert('导入成功：共 '+cnt+' 条记录');
+  }
+  function showPlan(level,type){
+    document.getElementById('home').style.display='none';
+    document.getElementById('subject').style.display='none';
+    document.getElementById('plan').style.display='block';
+    loadPlan();setPlanTab(level||'day');setPlanType(type||'combined');
+  }
+  function renderReminder(){
+    var card=document.getElementById('reminderCard');
+    var list=document.getElementById('reminderList');
+    if(!card||!list)return;
+    var today=dateToStr(new Date());
+    var reminders=[];
+    PLAN_LEVELS.forEach(function(l){
+      if(l.key==='day')return; // 取消「每日」级别的总结与计划提醒（周/半月/月保留）
+      var arr=planData[l.key]||[];
+      // 该总结了：计划已到结束日，且该范围（同开始日）还没有对应总结/二者合一
+      arr.forEach(function(en){
+        if(en.type==='plan'&&en.start&&en.end&&today>=en.end){
+          var hasSum=arr.some(function(x){return x.type==='summary'&&x.start===en.start;});
+          if(!hasSum)reminders.push({level:l.key,type:'summary',start:en.start,end:en.end});
+        }
+      });
+      // 该新一轮计划了：该级别最新一条是总结/二者合一且范围已结束（停滞，该开新一轮）
+      if(arr.length){
+        var latest=arr.slice().sort(function(a,b){
+          var sa=a.start||'',sb=b.start||'';
+          if(sa!==sb)return sa<sb?1:sa>sb?-1:0;
+          // 开始日相同：总结/二者合一视为更新（通常在计划之后完成）
+          var ta=(a.type==='summary')?1:0,tb=(b.type==='summary')?1:0;
+          return tb-ta;
+        })[0];
+        if(latest.type==='summary'&&latest.start&&latest.end&&today>=latest.end){
+          reminders.push({level:l.key,type:'plan',start:latest.start,end:latest.end});
+        }
+      }
+    });
+    // 同级别同范围合并为一条（可能同时该总结+该新计划）
+    var seen={};
+    reminders=reminders.filter(function(r){
+      var k=r.level+'|'+r.start;
+      if(seen[k]){seen[k].types.push(r.type);return false;}
+      seen[k]=r;r.types=[r.type];return true;
+    });
+    if(!reminders.length){card.style.display='none';list.innerHTML='';return;}
+    card.style.display='block';
+    reminders.sort(function(a,b){return (a.end||'')<(b.end||'')?-1:1;}); // 最急的（范围最先到期的）在前
+    list.innerHTML='';
+    reminders.forEach(function(r){
+      var div=document.createElement('div');div.className='today-item reminder-item';
+      div.style.cursor='pointer';
+      var hd=document.createElement('div');hd.className='today-item-head';
+      var lv=document.createElement('span');lv.className='today-level';lv.textContent=levelLabel(r.level);
+      var rg=document.createElement('span');rg.className='today-range';rg.textContent=fmtRange(r.start,r.end);
+      hd.appendChild(lv);hd.appendChild(rg);div.appendChild(hd);
+      var txt=document.createElement('div');txt.className='reminder-text';
+      txt.textContent=r.types.map(function(t){return t==='summary'?'该进行总结了':'该做新一轮计划了';}).join('，');
+      var od=Math.round((strToDate(today)-strToDate(r.end))/86400000);
+      if(od>0)txt.textContent+='（已过期 '+od+' 天）';
+      div.appendChild(txt);
+      div.addEventListener('click',function(){showPlan(r.level,r.types.indexOf('summary')>=0?'summary':'plan');});
+      list.appendChild(div);
+    });
+  }
+
+  document.addEventListener('DOMContentLoaded',function(){
+    applyAccents();
+    loadPlan();renderTodayPlan();
+    renderCountdown();
+    document.getElementById('btnEditCountdown').addEventListener('click',openCountdownModal);
+    document.getElementById('btnCloseCountdown').addEventListener('click',function(){document.getElementById('countdownModal').style.display='none';});
+    document.getElementById('countdownModal').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+    document.getElementById('btnSaveCountdown').addEventListener('click',saveCountdown);
+    document.getElementById('btnBackupAll').addEventListener('click',backupAll);
+    document.getElementById('btnRestoreAll').addEventListener('click',function(){document.getElementById('backupFileInput').click();});
+    document.getElementById('backupFileInput').addEventListener('change',function(e){
+      var f=e.target.files&&e.target.files[0];
+      if(!f)return;
+      if(!confirm('恢复将覆盖当前所有数据（四科成绩、目标分、配色、总结计划），确定继续？')){e.target.value='';return;}
+      var reader=new FileReader();
+      reader.onload=function(){restoreAll(String(reader.result));};
+      reader.readAsText(f,'utf-8');
+      e.target.value='';
+    });
+    document.querySelectorAll('.subject-card').forEach(function(card){card.addEventListener('click',function(){if(card.dataset.plan){showPlan();}else{showSubject(card.dataset.sub);}});});
+    document.getElementById('btnBack').addEventListener('click',showHome);
+    // 刷次筛选按钮由 renderFilters() 按当前刷次动态生成（见 showSubject）
+    document.getElementById('targetInput').addEventListener('input',function(e){localStorage.setItem(targetKey(),e.target.value);debounceRedraw();});
+    document.getElementById('colorInput').addEventListener('input',function(e){
+      var v=e.target.value;
+      localStorage.setItem('kaoyan_accent_'+cfg().id,v);
+      document.getElementById('subject').style.setProperty('--accent',v);
+      document.getElementById('subTitle').style.color=v;
+    });
+    document.getElementById('dimSelect').addEventListener('change',function(){drawCharts();});
+    document.getElementById('btnAdd').addEventListener('click',addPaper);
+    document.getElementById('btnMgmt').addEventListener('click',function(){renderMgmtList();document.getElementById('mgmtModal').style.display='flex';});
+    document.getElementById('btnActiveAll').addEventListener('click',function(){setAllPapersActive(true);});
+    document.getElementById('btnActiveNone').addEventListener('click',function(){setAllPapersActive(false);});
+    document.getElementById('btnCloseMgmt').addEventListener('click',function(){document.getElementById('mgmtModal').style.display='none';});
+    document.getElementById('mgmtModal').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+    document.getElementById('btnExport').addEventListener('click',exportCSV);
+    document.getElementById('btnImport').addEventListener('click',function(){document.getElementById('fileInput').click();});
+    document.getElementById('fileInput').addEventListener('change',function(e){
+      var f=e.target.files&&e.target.files[0];
+      if(!f)return;
+      readTextAuto(f,function(txt){importCSV(txt);});
+      e.target.value='';
+    });
+    document.getElementById('planFileInput').addEventListener('change',function(e){
+      var f=e.target.files&&e.target.files[0];
+      if(!f)return;
+      if(!confirm('导入将覆盖当前所有「总结与计划」数据，确定继续？')){e.target.value='';return;}
+      readTextAuto(f,function(txt){
+        if(/\.csv$/i.test(f.name))importPlanCSV(txt);
+        else importPlan(txt);
+      });
+      e.target.value='';
+    });
+    document.getElementById('btnReset').addEventListener('click',function(){
+      if(confirm('确定清空「'+cfg().name+'」所有已填写的成绩吗？此操作不可撤销。')){
+        var st=buildDefault();papers=st.papers;records=st.records;saveData();refreshRoundsUI();
+      }
+    });
+    document.getElementById('btnBackPlan').addEventListener('click',showHome);
+    document.querySelectorAll('.plan-tab').forEach(function(b){b.addEventListener('click',function(){setPlanTab(b.dataset.level);});});
+    document.querySelectorAll('.plan-type').forEach(function(b){b.addEventListener('click',function(){setPlanType(b.dataset.type);});});
+    document.getElementById('btnAddPlan').addEventListener('click',function(){openPlanModal(null);});
+    document.getElementById('btnExportPlan').addEventListener('click',exportPlan);
+    document.getElementById('btnExportPlanCSV').addEventListener('click',exportPlanCSV);
+    document.getElementById('btnImportPlan').addEventListener('click',function(){document.getElementById('planFileInput').click();});
+    document.getElementById('btnClosePlan').addEventListener('click',function(){document.getElementById('planModal').style.display='none';});
+    document.getElementById('planModal').addEventListener('click',function(e){if(e.target===this)this.style.display='none';});
+    document.getElementById('btnSavePlan').addEventListener('click',savePlanEntry);
+    setupPlanFieldNav();
+    setupPlanModalDrag();
+    document.getElementById('planStart').addEventListener('change',function(){
+      var e=snapEnd(currentLevel,this.value);
+      if(e)document.getElementById('planEnd').value=e;
+    });
+    loadECharts([
+      'echarts.min.js',
+      'https://cdn.bootcdn.net/ajax/libs/echarts/5.4.3/echarts.min.js',
+      'https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js',
+      'https://cdn.staticfile.org/echarts/5.4.3/echarts.min.js'
+    ],function(){
+      if(currentSubject&&ensureCharts()){chart1.resize();chart2.resize();drawCharts();}
+    });
+  });
+})();
+</script>
+</body>
+</html>
