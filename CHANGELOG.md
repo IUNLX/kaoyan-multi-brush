@@ -19,7 +19,7 @@
 ## [未发布]
 
 ### 新增
-- （暂无）
+- 《版本更新规范.md》新增 6.6 节「本机已知环境问题：加速器与证书」，记录 Steam++（Watt Toolkit）接管 GitHub 域名导致 `unable to get local issuer certificate` 的成因与 `git config http.sslBackend schannel` 解决办法；6.4 节补充对应故障行。
 
 ### 变更
 - （暂无）
