@@ -1,0 +1,11 @@
+# Git 属性配置
+#
+# 本机 core.autocrlf=true，会把文本文件检出为 CRLF。
+# 但 Git for Windows 用 sh 执行 .githooks/ 下的钩子脚本，
+# 若脚本带 CRLF，会报：/bin/sh^M: bad interpreter: No such file or directory
+# 因此强制钩子脚本始终以 LF 检出与存储。
+
+.githooks/* text eol=lf
+
+# Node 脚本同样强制 LF，避免跨平台执行问题
+*.mjs text eol=lf

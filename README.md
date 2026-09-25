@@ -69,6 +69,8 @@
 | `版本更新规范.md` | **每次更新强制遵守**的版本号规则、同步点与自检清单 |
 | `check-version.mjs` | 版本一致性校验脚本（`node check-version.mjs`） |
 | `release.ps1` | 一键发布脚本：校验 → 提交 → 推送至 GitHub → 验证 |
+| `.githooks/` | Git 钩子：提交前自动校验版本号、提交后自动推送 |
+| `.gitattributes` | 强制钩子脚本以 LF 检出（避免 `sh` 报 bad interpreter） |
 | `代码审查报告.md` | 全量代码审查结果与修复建议 |
 | `README.md` | 本文件 |
 | `考研真题多刷记录表.xlsx` | Excel 版记录表（首页 / 各科记录、数据、曲线共 13 个工作表） |
@@ -184,7 +186,9 @@ A：每套试卷最多六刷（一刷至六刷），曲线展示范围跟随所�
 
 > **每次更新完成后必须推送到 GitHub**：<https://github.com/IUNLX/kaoyan-multi-brush>
 >
+> 仓库已启用 Git 钩子（`core.hooksPath=.githooks`）：**提交前**自动校验版本号一致性并在不一致时拦截，**提交后**自动推送。跳过方式见《版本更新规范.md》6.7 节。
+>
 > ```powershell
-> node check-version.mjs              # 校验版本号一致性
+> node check-version.mjs              # 手动校验版本号一致性
 > .\release.ps1 "feat: 本次改了什么"   # 校验 → 提交 → 推送 → 验证
 > ```

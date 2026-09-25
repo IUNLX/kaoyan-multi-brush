@@ -1,0 +1,67 @@
+#!/bin/sh
+# ============================================================================
+# pre-commit 钩子 —— 提交前强制校验版本号一致性
+#
+# 依据《版本更新规范.md》第十一节：校验未通过的改动不得提交。
+# 启用方式（已在本地配置好）：git config core.hooksPath .githooks
+#
+# 仅在「版本相关文件」被暂存时才检查，普通改动不增加任何负担：
+#   考研真题多刷记录.html / CHANGELOG.md / README.md
+#
+# 跳过本次校验的两种方式：
+#   1) git commit --no-verify
+#   2) 设置环境变量 KAOYAN_SKIP_VERSION_CHECK=1
+# ============================================================================
+
+if [ -n "$KAOYAN_SKIP_VERSION_CHECK" ]; then
+    exit 0
+fi
+
+# 未安装 node 则跳过（不阻塞提交）
+if ! command -v node >/dev/null 2>&1; then
+    echo "[版本校验] 未找到 node，跳过校验" >&2
+    exit 0
+fi
+
+# 只在版本相关文件被暂存时检查
+STAGED=$(git diff --cached --name-only 2>/dev/null)
+NEED_CHECK=0
+for f in $STAGED; do
+    case "$f" in
+        考研真题多刷记录.html|CHANGELOG.md|README.md)
+            NEED_CHECK=1
+            break
+            ;;
+    esac
+done
+
+if [ "$NEED_CHECK" -eq 0 ]; then
+    exit 0
+fi
+
+# 仓库根目录
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null) || exit 0
+cd "$ROOT" || exit 0
+
+if [ ! -f check-version.mjs ]; then
+    echo "[版本校验] 未找到 check-version.mjs，跳过校验" >&2
+    exit 0
+fi
+
+if node check-version.mjs; then
+    exit 0
+fi
+
+echo "" >&2
+echo "────────────────────────────────────────────────────────" >&2
+echo " 提交已被拦截：版本号不一致。" >&2
+echo "" >&2
+echo " 请按《版本更新规范.md》第三节同步这四处：" >&2
+echo "   1. 考研真题多刷记录.html 顶部的 APP_VERSION 与 VERSION_HISTORY" >&2
+echo "   2. CHANGELOG.md 的版本区段" >&2
+echo "   3. README.md 的当前版本行" >&2
+echo "   4. 重新执行 node check-version.mjs 直到全部通过" >&2
+echo "" >&2
+echo " 确需绕过（不推荐）：git commit --no-verify" >&2
+echo "────────────────────────────────────────────────────────" >&2
+exit 1

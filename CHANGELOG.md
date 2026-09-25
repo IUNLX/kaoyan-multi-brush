@@ -20,6 +20,8 @@
 
 ### 新增
 - 《版本更新规范.md》新增 6.6 节「本机已知环境问题：加速器与证书」，记录 Steam++（Watt Toolkit）接管 GitHub 域名导致 `unable to get local issuer certificate` 的成因与 `git config http.sslBackend schannel` 解决办法；6.4 节补充对应故障行。
+- **自动推送**：新增 `.githooks/post-commit`，提交后自动推送到 `origin`；新增 `.githooks/pre-commit`，版本号不一致时拦截提交。通过 `git config core.hooksPath .githooks` 启用，规范新增 6.7 节说明。
+- 新增 `.gitattributes`：强制 `.githooks/*` 与 `*.mjs` 以 LF 检出（本机 `core.autocrlf=true` 会把钩子脚本转成 CRLF，导致 `sh` 报 `bad interpreter`）。
 
 ### 变更
 - （暂无）

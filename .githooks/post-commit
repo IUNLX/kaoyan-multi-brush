@@ -1,0 +1,54 @@
+#!/bin/sh
+# ============================================================================
+# post-commit 钩子 —— 提交后自动推送到 GitHub
+#
+# 依据《版本更新规范.md》第六节：每次更新完成后必须推送。
+# 启用方式（已在本地配置好）：git config core.hooksPath .githooks
+#
+# 跳过本次自动推送的两种方式：
+#   1) git commit --no-verify
+#   2) 设置环境变量 KAOYAN_NO_AUTOPUSH=1
+#
+# 设计原则：推送失败绝不影响提交本身，只在终端给出醒目提示。
+# ============================================================================
+
+# 显式跳过
+if [ -n "$KAOYAN_NO_AUTOPUSH" ]; then
+    exit 0
+fi
+
+REMOTE=origin
+GIT_DIR=$(git rev-parse --git-dir 2>/dev/null) || exit 0
+
+# 分离头指针状态（如正在查看历史提交）不推送
+BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null) || exit 0
+[ -z "$BRANCH" ] && exit 0
+
+# rebase / cherry-pick 过程中的中间提交不推送，等整体完成后再推
+if [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_DIR/rebase-apply" ] || [ -d "$GIT_DIR/sequencer" ]; then
+    echo "[自动推送] 检测到 rebase/cherry-pick 进行中，跳过本次自动推送" >&2
+    exit 0
+fi
+
+# 未配置远端则跳过
+if ! git remote get-url "$REMOTE" >/dev/null 2>&1; then
+    echo "[自动推送] 未配置远端 $REMOTE，跳过自动推送" >&2
+    exit 0
+fi
+
+SHORT=$(git rev-parse --short HEAD 2>/dev/null)
+echo "[自动推送] 正在推送 $BRANCH -> $REMOTE/$BRANCH ..."
+
+if git push "$REMOTE" "$BRANCH" 2>&1; then
+    echo "[自动推送] 完成：$SHORT 已同步到 GitHub"
+    exit 0
+fi
+
+echo "" >&2
+echo "[自动推送] 推送失败，提交仍保留在本地（未丢失）。" >&2
+echo "[自动推送] 手动重试：  git push $REMOTE $BRANCH" >&2
+echo "[自动推送] 失败原因与处理见《版本更新规范.md》6.4 / 6.6 节。" >&2
+echo "" >&2
+
+# 永远返回 0：推送失败不应让提交失败
+exit 0
