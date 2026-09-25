@@ -481,8 +481,12 @@
   // ===== 版本管理（唯一数据源）=====
   // 改版本号只需改下面 APP_VERSION 与 VERSION_HISTORY 两处；
   // 必须同步 CHANGELOG.md、README.md，并执行 node check-version.mjs 校验。规范见《版本更新规范.md》。
-  var APP_VERSION='1.1.1';
+  var APP_VERSION='1.1.2';
   var VERSION_HISTORY=[
+    {version:'1.1.2',date:'2026-09-25',changes:[
+      '修复首页「该做新一轮计划了」提醒标注成上一轮总结区间的问题，现显示新一轮应覆盖的区间',
+      '新增 nextRangeAfter()：兼顾周期最后一天不重叠、以及隔久后落到当前周期'
+    ]},
     {version:'1.1.1',date:'2026-09-25',changes:[
       '首页倒计时改版：天数放大并加渐变发光，去掉脉冲缩放动画',
       '倒计时进入 30 天内改用琥珀金渐变与光晕',
@@ -1452,6 +1456,19 @@
     if(level==='halfmonth')return dateToStr(new Date(y,m,day<=15?15:new Date(y,m+1,0).getDate()));
     return dateToStr(new Date(y,m+1,0));
   }
+  // 上一轮结束后，「新一轮计划」应当覆盖的区间。
+  // 候选 A = 紧接上一轮的下一个周期；候选 B = 当前所在周期。
+  // 取结束日较晚的一个：这样在周期最后一天提醒时不会与刚结束的区间重叠，
+  // 而隔了很久才补提醒时又会落到当前周期，与「＋ 添加」的默认区间保持一致。
+  function nextRangeAfter(level,endStr){
+    var e=strToDate(endStr);
+    if(!e)return null;
+    var after=dateToStr(new Date(e.getFullYear(),e.getMonth(),e.getDate()+1));
+    var candA={start:after,end:snapEnd(level,after)};
+    var candB=dateRangeFor(level);
+    if(!candA.end)return candB;
+    return (candA.end>=candB.end)?candA:candB;
+  }
   function levelLabel(level){for(var i=0;i<PLAN_LEVELS.length;i++)if(PLAN_LEVELS[i].key===level)return PLAN_LEVELS[i].label;return '';}
   function typeLabel(t){if(t==='summary')return '总结';if(t==='combined')return '二者合一';return '计划';}
   function loadPlan(){
@@ -1896,7 +1913,10 @@
           return tb-ta;
         })[0];
         if(latest.type==='summary'&&latest.start&&latest.end&&today>=latest.end){
-          reminders.push({level:l.key,type:'plan',start:latest.start,end:latest.end});
+          // 提醒的是「新一轮计划」，区间应取下一期，而不是刚结束的这一期
+          var nr=nextRangeAfter(l.key,latest.end);
+          reminders.push({level:l.key,type:'plan',start:latest.start,end:latest.end,
+                          nextStart:nr?nr.start:'',nextEnd:nr?nr.end:''});
         }
       }
     });
@@ -1916,7 +1936,11 @@
       div.style.cursor='pointer';
       var hd=document.createElement('div');hd.className='today-item-head';
       var lv=document.createElement('span');lv.className='today-level';lv.textContent=levelLabel(r.level);
-      var rg=document.createElement('span');rg.className='today-range';rg.textContent=fmtRange(r.start,r.end);
+      // 计划提醒标注的是「新一轮」应覆盖的区间；总结提醒标注刚结束、需要总结的区间
+      var planOnly=(r.types.length===1&&r.types[0]==='plan');
+      var rgStart=(planOnly&&r.nextStart)?r.nextStart:r.start;
+      var rgEnd=(planOnly&&r.nextEnd)?r.nextEnd:r.end;
+      var rg=document.createElement('span');rg.className='today-range';rg.textContent=fmtRange(rgStart,rgEnd);
       hd.appendChild(lv);hd.appendChild(rg);div.appendChild(hd);
       var txt=document.createElement('div');txt.className='reminder-text';
       txt.textContent=r.types.map(function(t){return t==='summary'?'该进行总结了':'该做新一轮计划了';}).join('，');
