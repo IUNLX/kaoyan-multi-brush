@@ -130,6 +130,10 @@
   .dot{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:4px;vertical-align:middle;}
   .dot.g{background:#1e7d32;}.dot.y{background:#e0a800;}.dot.r{background:#c0392b;}
   .tip{color:var(--muted);font-size:12px;margin-top:4px;}
+  .version{display:inline-block;padding:2px 8px;border-radius:12px;background:#f2f5fb;color:#8a94a6;font-size:12px;font-weight:500;}
+  .version-card{border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:18px;box-shadow:0 1px 3px rgba(20,40,80,.05);}
+  .version-card h2{font-size:16px;margin:0 0 14px;color:#E67E22;display:flex;align-items:center;gap:8px;}
+  .version-card h2::before{content:"";width:4px;height:16px;background:#E67E22;border-radius:2px;}
   .plan-list{display:flex;flex-direction:column;gap:12px;}
   .plan-empty{text-align:center;color:var(--muted);padding:48px 16px;font-size:14px;}
   .plan-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(20,40,80,.05);}
@@ -189,6 +193,16 @@
   @media(max-width:600px){.countdown-card{flex-direction:column;align-items:stretch;gap:14px;}.countdown-card .cd-left{padding-right:0;}.countdown-card .cd-right{min-width:0;}}
   .modal-body input[type=date]{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);}
   .modal-body input[type=date]:focus{outline:none;border-color:var(--accent,#2F5597);}
+  .version-info{margin-bottom:20px;}
+  .version-info h4{margin:0 0 8px 0;color:#E67E22;font-size:16px;}
+  .current-version{font-size:20px;font-weight:700;color:#E67E22;margin:8px 0;}
+  .version-date{color:#8a94a6;font-size:12px;margin:4px 0;}
+  .version-history{max-height:400px;overflow-y:auto;}
+  .version-item{border-bottom:1px solid #e3e8f0;padding:12px 0;margin-bottom:12px;}
+  .version-item:last-child{border-bottom:none;}
+  .version-number{font-weight:700;color:#E67E22;font-size:16px;margin-bottom:4px;}
+  .version-changes ul{margin:8px 0 0 20px;padding:0;}
+  .version-changes li{margin-bottom:4px;color:#2b2f36;font-size:13px;line-height:1.5;}
 </style>
 </head>
 <body>
@@ -197,7 +211,7 @@
   <!-- 首页 -->
   <div id="home" class="view">
     <header class="top">
-      <h1>考研真题多刷记录</h1>
+      <h1>考研真题多刷记录 <span class="version" id="appVersionTag">—</span></h1>
       <p class="sub">数学一 ｜ 408 ｜ 英语一 ｜ 政治 ｜ 多刷分数曲线 ｜ 数据自动保存在本浏览器</p>
     </header>
     <div class="countdown-card" id="countdownCard">
@@ -252,6 +266,17 @@
         </div>
       </div>
       <div class="tip">「一键备份」把四科成绩、目标分、配色、总结与计划全部导出为一个 JSON 文件；「一键恢复」把它导回网页。换设备时用微信 / 网盘把该文件传到新设备，再点「一键恢复」即可。</div>
+    </div>
+    <div class="card version-card">
+      <h2 style="color:#E67E22;">版本信息</h2>
+      <div class="tip" style="margin:0 0 12px;">当前版本：<b id="appVersionCard" style="color:#E67E22;">—</b></div>
+      <div class="toolbar" style="margin-bottom:0;">
+        <div class="grp">
+          <button id="btnVersionInfo" style="background:#E67E22;border-color:#E67E22;color:#fff;">查看版本历史</button>
+          <button id="btnExportVersion" style="background:#2F5597;color:#fff;">导出版本记录</button>
+        </div>
+      </div>
+      <div class="tip">查看工具版本历史记录，导出版本信息用于版本对比和更新日志管理。</div>
     </div>
     <footer><div>数学一「高数/线代/概率」按 82/34/34 估算；408 自 2009 年统考；政治客观题＝单选＋多选。</div></footer>
   </div>
@@ -449,6 +474,22 @@
 
 <script>
 (function(){
+  // ===== 版本管理（唯一数据源）=====
+  // 改版本号只需改下面 APP_VERSION 与 VERSION_HISTORY 两处；
+  // 必须同步 CHANGELOG.md、README.md，并执行 node check-version.mjs 校验。规范见《版本更新规范.md》。
+  var APP_VERSION='1.1.0';
+  var VERSION_HISTORY=[
+    {version:'1.1.0',date:'2026-09-25',changes:[
+      '试卷总时间改为可填写，未填写显示「其他时间」',
+      '新增版本信息面板，可查看版本历史并导出版本记录',
+      '备份文件与文件名带上版本号，恢复时显示备份版本',
+      '修复总时间「显示值」与「导出值」不一致的问题'
+    ]},
+    {version:'1.0.0',date:'2026-09-22',changes:[
+      '首个稳定版本：四科多刷成绩记录、统计卡与曲线分析'
+    ]}
+  ];
+
   function range(a,b){var arr=[];for(var i=a;i<=b;i++)arr.push(i);return arr;}
 
   var CONFIG={
@@ -1147,9 +1188,9 @@
     });
     data['kaoyan_plan_v1']=localStorage.getItem('kaoyan_plan_v1');
     data['kaoyan_countdown_v1']=localStorage.getItem('kaoyan_countdown_v1');
-    var payload={app:'kaoyan-multi-brush',v:1,time:dateToStr(new Date()),data:data};
+    var payload={app:'kaoyan-multi-brush',v:1,time:dateToStr(new Date()),version:APP_VERSION,data:data};
     var blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
-    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='考研数据备份_'+dateToStr(new Date())+'.json';
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='考研数据备份_v'+APP_VERSION+'_'+dateToStr(new Date())+'.json';
     document.body.appendChild(a);a.click();a.remove();
     setTimeout(function(){URL.revokeObjectURL(a.href);},1000);
   }
@@ -1161,8 +1202,72 @@
     Object.keys(d.data).forEach(function(k){
       if(/^kaoyan_/.test(k)&&d.data[k]!=null){localStorage.setItem(k,d.data[k]);n++;}
     });
-    alert('恢复成功：已写入 '+n+' 项数据，即将刷新页面');
+    var backupVer=d.version||'未知';
+    alert('恢复成功：已写入 '+n+' 项数据\n备份版本：v'+backupVer+'\n即将刷新页面');
     location.reload();
+  }
+  // 版本管理功能
+  // 把 APP_VERSION 渲染到页面标题、首页标签与版本卡片，避免多处硬编码导致版本号漂移
+  function renderAppVersion(){
+    var v='v'+APP_VERSION;
+    var tag=document.getElementById('appVersionTag');
+    if(tag)tag.textContent=v;
+    var card=document.getElementById('appVersionCard');
+    if(card)card.textContent=v;
+    document.title='考研真题多刷记录 '+v+' · 英语一 / 数学一 / 408 / 政治';
+  }
+  function showVersionInfo(){
+    var modal=document.getElementById('versionModal');
+    if(!modal){
+      modal=document.createElement('div');modal.id='versionModal';modal.className='modal';
+      var box=document.createElement('div');box.className='modal-box';
+      var head=document.createElement('div');head.className='modal-head';
+      var h3=document.createElement('h3');h3.textContent='版本信息';h3.style.color='#E67E22';
+      var close=document.createElement('button');close.className='close';close.textContent='×';
+      head.appendChild(h3);head.appendChild(close);
+      var body=document.createElement('div');body.className='modal-body';
+      var currentVer=document.createElement('div');currentVer.className='version-info';
+      currentVer.innerHTML='<h4>当前版本</h4><p class="current-version">v'+APP_VERSION+'</p><p class="version-date">发布日期：'+(VERSION_HISTORY[0]?VERSION_HISTORY[0].date:'—')+'</p>';
+      body.appendChild(currentVer);
+      var historyTitle=document.createElement('h4');historyTitle.textContent='版本历史';
+      body.appendChild(historyTitle);
+      var historyList=document.createElement('div');historyList.className='version-history';
+      VERSION_HISTORY.forEach(function(v){
+        var item=document.createElement('div');item.className='version-item';
+        var ver=document.createElement('div');ver.className='version-number';ver.textContent='v'+v.version;
+        var date=document.createElement('div');date.className='version-date';date.textContent=v.date;
+        var changes=document.createElement('div');changes.className='version-changes';
+        var changeList=document.createElement('ul');
+        v.changes.forEach(function(c){
+          var li=document.createElement('li');li.textContent=c;changeList.appendChild(li);
+        });
+        changes.appendChild(changeList);
+        item.appendChild(ver);item.appendChild(date);item.appendChild(changes);
+        historyList.appendChild(item);
+      });
+      body.appendChild(historyList);
+      var foot=document.createElement('div');foot.className='modal-foot';
+      var btnClose=document.createElement('button');btnClose.textContent='关闭';btnClose.style.background='#E67E22';btnClose.style.borderColor='#E67E22';btnClose.style.color='#fff';
+      foot.appendChild(btnClose);
+      box.appendChild(head);box.appendChild(body);box.appendChild(foot);
+      modal.appendChild(box);
+      document.body.appendChild(modal);
+      close.addEventListener('click',function(){modal.style.display='none';});
+      btnClose.addEventListener('click',function(){modal.style.display='none';});
+      modal.addEventListener('click',function(e){if(e.target===modal)modal.style.display='none';});
+    }
+    modal.style.display='flex';
+  }
+  function exportVersionInfo(){
+    var versionData={
+      app:'kaoyan-multi-brush',
+      currentVersion:APP_VERSION,
+      exportTime:dateToStr(new Date()),
+      versionHistory:VERSION_HISTORY
+    };
+    var blob=new Blob([JSON.stringify(versionData,null,2)],{type:'application/json'});
+    var a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='考研工具版本记录_v'+APP_VERSION+'_'+dateToStr(new Date())+'.json';
+    document.body.appendChild(a);a.click();setTimeout(function(){document.body.removeChild(a);URL.revokeObjectURL(a.href);},1000);
   }
   function applyAccents(){
     document.querySelectorAll('.subject-card').forEach(function(card){
@@ -1236,6 +1341,7 @@
     document.getElementById('chart2').innerHTML='<div style="padding:40px;text-align:center;color:#c0392b;">图表库加载失败，请联网后刷新页面。</div>';
   }
 
+  // ===== 版本管理：常量定义在文件顶部（见脚本开头）=====
   // ===== 总结与计划 =====
   var SUBJECTS=['数学一','408','英语一','政治'];
   var PLAN_LEVELS=[{key:'day',label:'每日'},{key:'week',label:'每周'},{key:'halfmonth',label:'每半月'},{key:'month',label:'每月'}];
@@ -1814,6 +1920,7 @@
   }
 
   document.addEventListener('DOMContentLoaded',function(){
+    renderAppVersion();
     applyAccents();
     loadPlan();renderTodayPlan();
     renderCountdown();
@@ -1832,6 +1939,8 @@
       reader.readAsText(f,'utf-8');
       e.target.value='';
     });
+    document.getElementById('btnVersionInfo').addEventListener('click',showVersionInfo);
+    document.getElementById('btnExportVersion').addEventListener('click',exportVersionInfo);
     document.querySelectorAll('.subject-card').forEach(function(card){card.addEventListener('click',function(){if(card.dataset.plan){showPlan();}else{showSubject(card.dataset.sub);}});});
     document.getElementById('btnBack').addEventListener('click',showHome);
     // 刷次筛选按钮由 renderFilters() 按当前刷次动态生成（见 showSubject）
