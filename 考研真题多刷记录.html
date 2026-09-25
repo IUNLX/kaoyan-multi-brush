@@ -180,16 +180,20 @@
   .countdown-card .cd-left{flex:1;min-width:0;position:relative;z-index:1;padding-right:60px;}
   .countdown-card .cd-name{font-size:22px;font-weight:800;letter-spacing:1px;text-shadow:0 1px 2px rgba(0,0,0,.16);}
   .countdown-card .cd-date{font-size:13px;opacity:.92;margin-top:8px;letter-spacing:.5px;}
-  .countdown-card .cd-right{position:relative;z-index:1;text-align:center;min-width:132px;padding:14px 22px;border-radius:16px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.2);}
-  .countdown-card .cd-num{font-size:56px;font-weight:900;line-height:1;letter-spacing:1px;font-variant-numeric:tabular-nums;animation:cdPulse 3s ease-in-out infinite;}
-  .countdown-card .cd-num.small{font-size:30px;}
-  .countdown-card .cd-unit{font-size:13px;opacity:.92;margin-top:8px;letter-spacing:2px;}
+  .countdown-card .cd-right{position:relative;z-index:1;text-align:center;min-width:190px;padding:18px 26px;border-radius:18px;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.26);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);box-shadow:inset 0 1px 0 rgba(255,255,255,.2);}
+  .countdown-card .cd-num{font-size:clamp(60px,8.5vw,92px);font-weight:900;line-height:1;letter-spacing:-1px;font-variant-numeric:tabular-nums;background:linear-gradient(180deg,#ffffff 0%,#e8f1ff 48%,#a9c9ff 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 18px rgba(160,200,255,.65)) drop-shadow(0 2px 1px rgba(10,25,60,.35));}
+  .countdown-card .cd-num.small{font-size:clamp(30px,4.6vw,46px);letter-spacing:0;filter:drop-shadow(0 0 14px rgba(160,200,255,.55));}
+  .countdown-card .cd-unit{font-size:13px;opacity:.95;margin-top:10px;letter-spacing:3px;font-weight:600;}
   .countdown-card .cd-edit{position:absolute;top:16px;right:18px;z-index:2;background:rgba(255,255,255,.14);border:1px solid rgba(255,255,255,.35);color:#fff;padding:6px 14px;border-radius:16px;font-size:12px;cursor:pointer;transition:.18s;backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);}
   .countdown-card .cd-edit:hover{background:rgba(255,255,255,.3);border-color:#fff;}
   .countdown-card.urgent{background:linear-gradient(135deg,#7f1d1d 0%,#c0392b 46%,#b45309 100%);box-shadow:0 12px 32px rgba(192,57,43,.35);}
   .countdown-card.urgent .cd-right{background:rgba(255,255,255,.16);border-color:rgba(255,213,102,.5);}
-  .countdown-card.urgent .cd-num{color:#FFD166;}
-  @keyframes cdPulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+  .countdown-card.urgent .cd-num{background:linear-gradient(180deg,#fffdf2 0%,#ffe08a 46%,#f5a623 100%);-webkit-background-clip:text;background-clip:text;color:transparent;-webkit-text-fill-color:transparent;filter:drop-shadow(0 0 20px rgba(255,209,102,.7)) drop-shadow(0 2px 1px rgba(70,20,0,.35));}
+  /* 降级：不支持 background-clip:text 时，渐变文字会整块变透明，这里退回纯色 */
+  @supports not ((background-clip:text) or (-webkit-background-clip:text)){
+    .countdown-card .cd-num{background:none;color:#fff;-webkit-text-fill-color:#fff;}
+    .countdown-card.urgent .cd-num{background:none;color:#FFD166;-webkit-text-fill-color:#FFD166;}
+  }
   @media(max-width:600px){.countdown-card{flex-direction:column;align-items:stretch;gap:14px;}.countdown-card .cd-left{padding-right:0;}.countdown-card .cd-right{min-width:0;}}
   .modal-body input[type=date]{width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;font-family:inherit;background:#fff;color:var(--text);}
   .modal-body input[type=date]:focus{outline:none;border-color:var(--accent,#2F5597);}
@@ -477,8 +481,13 @@
   // ===== 版本管理（唯一数据源）=====
   // 改版本号只需改下面 APP_VERSION 与 VERSION_HISTORY 两处；
   // 必须同步 CHANGELOG.md、README.md，并执行 node check-version.mjs 校验。规范见《版本更新规范.md》。
-  var APP_VERSION='1.1.0';
+  var APP_VERSION='1.1.1';
   var VERSION_HISTORY=[
+    {version:'1.1.1',date:'2026-09-25',changes:[
+      '首页倒计时改版：天数放大并加渐变发光，去掉脉冲缩放动画',
+      '倒计时进入 30 天内改用琥珀金渐变与光晕',
+      '补充 background-clip:text 不支持时的纯色降级'
+    ]},
     {version:'1.1.0',date:'2026-09-25',changes:[
       '试卷总时间改为可填写，未填写显示「其他时间」',
       '新增版本信息面板，可查看版本历史并导出版本记录',

@@ -19,15 +19,29 @@
 ## [未发布]
 
 ### 新增
-- 《版本更新规范.md》新增 6.6 节「本机已知环境问题：加速器与证书」，记录 Steam++（Watt Toolkit）接管 GitHub 域名导致 `unable to get local issuer certificate` 的成因与 `git config http.sslBackend schannel` 解决办法；6.4 节补充对应故障行。
-- **自动推送**：新增 `.githooks/post-commit`，提交后自动推送到 `origin`；新增 `.githooks/pre-commit`，版本号不一致时拦截提交。通过 `git config core.hooksPath .githooks` 启用，规范新增 6.7 节说明。
-- 新增 `.gitattributes`：强制 `.githooks/*` 与 `*.mjs` 以 LF 检出（本机 `core.autocrlf=true` 会把钩子脚本转成 CRLF，导致 `sh` 报 `bad interpreter`）。
+- （暂无）
 
 ### 变更
 - （暂无）
 
 ### 修复
 - （暂无）
+
+---
+
+## [1.1.1] - 2026-09-25
+
+### 新增
+- 《版本更新规范.md》新增 6.6 节「本机已知环境问题：加速器与证书」，记录 Steam++（Watt Toolkit）接管 GitHub 域名导致 `unable to get local issuer certificate` 的成因与 `git config http.sslBackend schannel` 解决办法；6.4 节补充对应故障行。
+- **自动推送**：新增 `.githooks/post-commit`，提交后自动推送到 `origin`；新增 `.githooks/pre-commit`，版本号不一致时拦截提交。通过 `git config core.hooksPath .githooks` 启用，规范新增 6.7 节说明。
+- 新增 `.gitattributes`：强制 `.githooks/*` 与 `*.mjs` 以 LF 检出（本机 `core.autocrlf=true` 会把钩子脚本转成 CRLF，导致 `sh` 报 `bad interpreter`）。
+
+### 变更
+- **首页倒计时改版（更醒目）**：天数由固定 `56px` 放大为 `clamp(60px, 8.5vw, 92px)`，加入白→浅蓝纵向渐变与双层 `drop-shadow` 光晕；去掉原来 3 秒循环的缩放脉冲动画（`@keyframes cdPulse` 已删除）。右侧数字框同步加大（min-width 132→190px、圆角 16→18px）；「今天 / 已过天数」小号数字由 `30px` 放大到 `clamp(30px, 4.6vw, 46px)`；「天」单位字距与字重加强。
+
+### 修复
+- 倒计时进入 30 天内的紧迫态，原先依赖 `.cd-num{color:#FFD166}` 上色；改用渐变文字后 `color` 会被 `-webkit-text-fill-color:transparent` 覆盖而失效，已改为独立的琥珀金渐变（白→金→橙）与金色光晕。
+- 补充 `@supports not (background-clip:text)` 降级：浏览器不支持渐变文字时退回纯色（普通白色 / 紧迫态 `#FFD166`），避免数字整块透明不可见。
 
 ---
 
