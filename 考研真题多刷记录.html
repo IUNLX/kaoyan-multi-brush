@@ -83,6 +83,8 @@
   .sec-cell input{width:56px;}
   .sec-cell input.sec-time{width:44px;font-size:11px;padding:2px 3px;color:var(--muted);}
   td.time-total{font-weight:700;color:#2F5597;}
+  td.time-total input.time{width:74px;text-align:center;font-weight:700;color:#2F5597;}
+  td.time-total input.time::placeholder{font-weight:400;color:#9aa4b5;}
   td.note input[type=text]{width:84px;padding:5px 6px;border:1px solid transparent;border-radius:6px;font-size:12px;font-family:inherit;text-align:left;background:#fff;}
   td.note input[type=text]:focus{outline:none;border-color:var(--accent,#2F5597);background:#f6f9ff;}
   td.total{font-weight:700;font-size:14px;}
@@ -549,7 +551,7 @@
       state.records=state.records.filter(roundHasData);
       state.v=2;
     }
-    state.records.forEach(function(r){r.s=(r.s||[]).slice(0,c.sections.length);while(r.s.length<c.sections.length)r.s.push(null);if(!Array.isArray(r.times))r.times=new Array(c.sections.length).fill(null);while(r.times.length<c.sections.length)r.times.push(null);if(r.times.length>c.sections.length)r.times=r.times.slice(0,c.sections.length);if(r.note==null)r.note='';if(r.time==null)r.time=null;if(r.date==null)r.date=null;});
+    state.records.forEach(function(r){r.s=(r.s||[]).slice(0,c.sections.length);while(r.s.length<c.sections.length)r.s.push(null);if(!Array.isArray(r.times))r.times=new Array(c.sections.length).fill(null);while(r.times.length<c.sections.length)r.times.push(null);if(r.times.length>c.sections.length)r.times=r.times.slice(0,c.sections.length);if(r.note==null)r.note='';if(r.time==null)r.time=null;if(r.timeManual===undefined){r.timeManual=(r.time!=null);if(!r.timeManual&&c.perSectionTime){var _st=sectionSumTime(r);if(_st!=null)r.time=_st;}}if(r.date==null)r.date=null;});
     var names={};state.papers.forEach(function(p){names[p.name]=1;});
     c.years.forEach(function(y){var k=String(y);if(!names[k]){state.papers.push({id:genId(),name:k,active:true});names[k]=1;}});
     state.papers.forEach(function(p){if(p.active===undefined)p.active=true;}); // 旧数据默认全部参与
@@ -565,16 +567,23 @@
   function totalIndices(){var c=cfg();return c.totalIndices||c.sections.map(function(_,i){return i;});}
   function sumOf(rec,indices){var sum=0,any=false;indices.forEach(function(i){var v=rec.s[i];if(v!==null&&!isNaN(v)){sum+=v;any=true;}});return any?sum:null;}
   function totalOf(rec){return sumOf(rec,totalIndices());}
-  function totalTime(rec){
-    var c=cfg();
-    if(c.perSectionTime){
-      var sum=0,any=false;
-      rec.times.forEach(function(t){if(t!=null&&!isNaN(t)){sum+=t;any=true;}});
-      return any?sum:rec.time;
-    }
-    return rec.time;
+  // 各题型时间合计（一个都没填时返回 null）
+  function sectionSumTime(rec){
+    var sum=0,any=false;
+    (rec.times||[]).forEach(function(t){if(t!=null&&!isNaN(t)){sum+=t;any=true;}});
+    return any?sum:null;
   }
-  function fmt(v){return v===null?'—':(Number.isInteger(v)?v:v.toFixed(1));}
+  // 总时间：以 rec.time 为准（手动填写，或由分项时间自动合计而来）；
+  // 未填写（null / 空）时返回 null，界面上显示为「其他时间」
+  function totalTime(rec){
+    return (rec.time==null||rec.time==='')?null:rec.time;
+  }
+  function formatTotalTime(rec){
+    var time=totalTime(rec);
+    if(time===null||time==='')return '其他时间';
+    return time+'分';
+  }
+  function fmt(v){return v===null||v===''?'—':(Number.isInteger(v)?v:v.toFixed(1));}
   function findRecord(paperId,round){for(var i=0;i<records.length;i++)if(records[i].paperId===paperId&&records[i].round===round)return i;return -1;}
   // ===== 刷次（每套试卷单独增减） =====
   // 该条记录是否填过内容（用来判断某个刷次是不是「已有数据」）
@@ -589,7 +598,7 @@
   }
   function newRoundRecord(pid,rd){
     var c=cfg();
-    return {paperId:pid,round:rd,s:new Array(c.sections.length).fill(null),times:new Array(c.sections.length).fill(null),note:'',time:null,date:null};
+    return {paperId:pid,round:rd,s:new Array(c.sections.length).fill(null),times:new Array(c.sections.length).fill(null),note:'',time:null,timeManual:false,date:null};
   }
   // 某套试卷已有的刷次（按 一刷→六刷 排序），至少返回「一刷」
   function roundsOf(pid){
@@ -721,15 +730,14 @@
           var td=document.createElement('td');td.className='subtotal';td.textContent=fmt(sumOf(rec,sub.indices));tr.appendChild(td);
         });
         var ttd=document.createElement('td');ttd.className='total';ttd.textContent=fmt(totalOf(rec));tr.appendChild(ttd);
-        var timetd=document.createElement('td');
-        if(c.perSectionTime){
-          timetd.className='time-total';timetd.textContent=fmt(totalTime(rec));
-        }else{
-          var tinp=document.createElement('input');tinp.type='number';tinp.min=0;tinp.step=1;tinp.className='time';
-          tinp.value=rec.time==null?'':rec.time;tinp.dataset.idx=rIdx;
-          tinp.addEventListener('input',onTimeInput);
-          timetd.appendChild(tinp);
-        }
+        var timetd=document.createElement('td');timetd.className='time-total';
+        var tinp=document.createElement('input');tinp.type='number';tinp.min=0;tinp.step=1;tinp.className='time';
+        tinp.value=rec.time==null?'':rec.time;
+        tinp.placeholder='其他时间';
+        tinp.title='本套试卷总用时（分钟）：可直接填写；留空则显示「其他时间」'+(c.perSectionTime?'。在题型下方填了分项时间会自动合计到这里，手动填写后不再被自动覆盖（清空即可恢复自动合计）':'');
+        tinp.dataset.idx=rIdx;
+        tinp.addEventListener('input',onTimeInput);
+        timetd.appendChild(tinp);
         tr.appendChild(timetd);
         var datetd=document.createElement('td');
         var dinp=document.createElement('input');dinp.type='date';dinp.value=rec.date==null?'':rec.date;dinp.dataset.idx=rIdx;
@@ -761,16 +769,28 @@
     var el=e.target,idx=+el.dataset.idx;var raw=el.value.trim();
     var t=raw===''?null:parseInt(raw,10);
     if(t!==null){if(isNaN(t))t=null;else{t=Math.max(0,t);if(t!==parseInt(raw,10))el.value=t;}}
-    records[idx].time=t;saveData();
+    var rec=records[idx];
+    rec.time=t;
+    rec.timeManual=(t!==null); // 手动填过就以手动值为准；清空则恢复「分项合计 / 其他时间」
+    if(t===null&&cfg().perSectionTime){
+      // 清空后若还有分项时间，立刻回到自动合计，保证显示与导出一致
+      var s=sectionSumTime(rec);
+      if(s!=null){rec.time=s;el.value=s;}
+    }
+    saveData();
   }
   function onDateInput(e){records[+e.target.dataset.idx].date=e.target.value||null;saveData();}
   function onSecTimeInput(e){
     var el=e.target,idx=+el.dataset.idx,si=+el.dataset.si;var raw=el.value.trim();
     var t=raw===''?null:parseInt(raw,10);
     if(t!==null){if(isNaN(t))t=null;else{t=Math.max(0,t);if(t!==parseInt(raw,10))el.value=t;}}
-    records[idx].times[si]=t;
-    var tr=el.closest('tr');var tt=tr.querySelector('.time-total');
-    if(tt)tt.textContent=fmt(totalTime(records[idx]));
+    var rec=records[idx];
+    rec.times[si]=t;
+    if(!rec.timeManual){ // 没手动改过总时间时，总时间跟随分项时间自动合计
+      rec.time=sectionSumTime(rec);
+      var tr=el.closest('tr');var ti=tr?tr.querySelector('.time-total input'):null;
+      if(ti)ti.value=rec.time==null?'':rec.time;
+    }
     saveData();
   }
 
@@ -966,7 +986,12 @@
         if(raw==='')rec.s[si]=null;
         else{var v=parseFloat(raw);rec.s[si]=isNaN(v)?null:Math.min(Math.max(v,0),c.sections[si].full);}
       });
-      if(timeCol!==undefined){var tv=(timeCol<row.length?row[timeCol]:'').trim();rec.time=tv===''?null:Math.max(0,parseInt(tv,10)||0);}
+      if(timeCol!==undefined){
+        var tv=(timeCol<row.length?row[timeCol]:'').trim();
+        rec.time=tv===''?null:Math.max(0,parseInt(tv,10)||0);
+        rec.timeManual=(rec.time!=null);
+        if(rec.time==null&&c.perSectionTime){var _s=sectionSumTime(rec);if(_s!=null)rec.time=_s;} // 没给总时间时用分项合计补齐
+      }
       if(dateCol!==undefined){var dv=(dateCol<row.length?row[dateCol]:'').trim();rec.date=dv||null;}
       if(noteCol!==undefined){rec.note=(noteCol<row.length?row[noteCol]:'')||'';}
       importedRows++;
