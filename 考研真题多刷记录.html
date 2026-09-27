@@ -8,7 +8,7 @@
   :root{--primary:#2F5597;--bg:#f4f6fa;--card:#ffffff;--border:#e3e8f0;--text:#2b2f36;--muted:#8a94a6;}
   *{box-sizing:border-box;}
   body{margin:0;font-family:"Microsoft YaHei","PingFang SC",-apple-system,"Segoe UI",sans-serif;background:var(--bg);color:var(--text);line-height:1.5;}
-  .wrap{max-width:1240px;margin:0 auto;padding:24px 16px 60px;}
+  .wrap{max-width:1440px;margin:0 auto;padding:24px 16px 60px;}
 
   header.top{text-align:center;margin-bottom:26px;}
   header.top h1{font-size:26px;margin:0 0 6px;color:var(--primary);letter-spacing:1px;}
@@ -54,7 +54,8 @@
   .chart.small{height:320px;}
 
   .table-wrap{overflow:auto;max-height:560px;border:1px solid var(--border);border-radius:10px;}
-  table{width:100%;border-collapse:collapse;min-width:1120px;font-size:13px;}
+  /* min-width 必须小于表格「自然宽度」，否则容器略窄就强行撑出横向滚动条 */
+  table{width:100%;border-collapse:collapse;min-width:1000px;font-size:13px;}
   thead th{position:sticky;top:0;z-index:2;background:var(--accent,#2F5597);color:#fff;padding:10px 6px;font-weight:600;white-space:nowrap;text-align:center;}
   thead th small{font-weight:400;opacity:.85;}
   tbody td{padding:4px 6px;text-align:center;border-bottom:1px solid #f0f2f7;}
@@ -489,8 +490,13 @@
   // ===== 版本管理（唯一数据源）=====
   // 改版本号只需改下面 APP_VERSION 与 VERSION_HISTORY 两处；
   // 必须同步 CHANGELOG.md、README.md，并执行 node check-version.mjs 校验。规范见《版本更新规范.md》。
-  var APP_VERSION='1.1.4';
+  var APP_VERSION='1.1.5';
   var VERSION_HISTORY=[
+    {version:'1.1.5',date:'2026-09-25',changes:[
+      '成绩记录表格加宽：内容区上限由 1240px 提到 1440px，宽屏下表格可用宽度增加约 200px',
+      'table 的 min-width 由 1120px 降到 1000px（低于表格自然宽度 1073px），不再强行撑出横向滚动条',
+      '出现横向滚动条的临界窗口宽度由约 1192px 降到约 1145px'
+    ]},
     {version:'1.1.4',date:'2026-09-25',changes:[
       '修复 1.1.3 中「悬停备注看不到完整内容」：原生 title 在 mouseenter 里动态设置不可靠，改用自定义浮层',
       '悬停立即显示完整备注，可自动换行、避免超出视口，短备注不弹',
