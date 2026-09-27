@@ -86,11 +86,15 @@
   td.time-total{font-weight:700;color:#2F5597;}
   td.time-total input.time{width:74px;text-align:center;font-weight:700;color:#2F5597;}
   td.time-total input.time::placeholder{font-weight:400;color:#9aa4b5;}
-  /* 备注列：固定列宽——聚焦时输入框改为绝对定位浮层展开，靠它避免列宽塌缩导致整表跳动 */
-  td.note{position:relative;width:164px;min-width:164px;}
-  td.note input[type=text]{width:150px;padding:5px 6px;border:1px solid transparent;border-radius:6px;font-size:12px;font-family:inherit;text-align:left;background:#fff;}
-  /* 聚焦时向左浮层展开到 380px（约 30 个汉字），编辑时能看全；不挤压其他列 */
-  td.note input[type=text]:focus{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:380px;z-index:6;outline:none;border-color:var(--accent,#2F5597);background:#f6f9ff;box-shadow:0 6px 20px rgba(20,40,80,.2);}
+  /* 备注列：填写时「向下延伸」——内部换行 + 自动增高，不向左/右侵占其他列。
+     折叠态高度固定为 31px（与其它单元格齐平），聚焦后由 growNote() 按内容撑高。 */
+  td.note{width:164px;min-width:164px;}
+  td.note textarea{display:block;margin:0 auto;width:150px;height:31px;padding:5px 6px;
+    border:1px solid transparent;border-radius:6px;font-size:12px;font-family:inherit;line-height:1.45;
+    text-align:left;color:var(--text);background:#fff;
+    resize:none;overflow:hidden;white-space:pre-wrap;word-break:break-word;}
+  td.note textarea:hover{border-color:#c8d3e6;}
+  td.note textarea:focus{outline:none;border-color:var(--accent,#2F5597);background:#f6f9ff;box-shadow:0 2px 8px rgba(20,40,80,.12);}
   /* 备注悬停浮层：替代原生 title——动态设置 title 在 Chrome 下经常不弹出，且有约 1 秒延迟。
      用 position:fixed 挂在 body 上，避免被 .table-wrap 的 overflow:auto 裁掉。 */
   .note-tip{position:fixed;z-index:50;max-width:440px;padding:6px 10px;border-radius:8px;
@@ -490,8 +494,13 @@
   // ===== 版本管理（唯一数据源）=====
   // 改版本号只需改下面 APP_VERSION 与 VERSION_HISTORY 两处；
   // 必须同步 CHANGELOG.md、README.md，并执行 node check-version.mjs 校验。规范见《版本更新规范.md》。
-  var APP_VERSION='1.1.5';
+  var APP_VERSION='1.2.0';
   var VERSION_HISTORY=[
+    {version:'1.2.0',date:'2026-09-25',changes:[
+      '备注填写改为「向下延伸」：聚焦后按内容自动增高并内部换行，不再向左横向铺开遮挡「日期」列',
+      '备注支持多行：单行 input 换成 textarea，可换行书写',
+      'CSV 导入/导出已验证对多行备注安全（导出加引号、导入为状态机解析）'
+    ]},
     {version:'1.1.5',date:'2026-09-25',changes:[
       '成绩记录表格加宽：内容区上限由 1240px 提到 1440px，宽屏下表格可用宽度增加约 200px',
       'table 的 min-width 由 1120px 降到 1000px（低于表格自然宽度 1073px），不再强行撑出横向滚动条',
@@ -772,8 +781,8 @@
   }
   function hideNoteTip(){if(noteTipEl)noteTipEl.style.display='none';}
   function showNoteTip(el){
-    // 只有文字真的被裁切时才弹，短备注不打扰
-    if(el.scrollWidth<=el.clientWidth+1||!el.value){hideNoteTip();return;}
+    // 备注是会自动换行的 textarea，所以「被裁切」表现为纵向溢出，而不是横向
+    if(el.scrollHeight<=el.clientHeight+1||!el.value){hideNoteTip();return;}
     var t=noteTip();
     t.textContent=el.value;
     t.style.display='block';
@@ -784,6 +793,19 @@
     t.style.top=top+'px';
     t.style.left=left+'px';
   }
+
+  // ===== 备注「向下延伸」=====
+  // textarea 折叠态固定 31px，聚焦后按内容自动增高，撑高的部分向下占位（行变高、下方行下移），
+  // 而不是像以前那样横向铺开去盖住「日期」列。
+  var NOTE_MIN_H=31;
+  function growNote(el){
+    if(!el||el.offsetParent===null)return;   // 元素不可见时不测量，否则 scrollHeight 会算错
+    el.style.height='auto';
+    var cs=getComputedStyle(el);
+    var extra=parseFloat(cs.borderTopWidth)+parseFloat(cs.borderBottomWidth);
+    el.style.height=Math.max(NOTE_MIN_H,el.scrollHeight+extra)+'px';
+  }
+  function shrinkNote(el){if(el)el.style.height='';}   // 交回 CSS 的 31px
 
   function renderTable(){
     var c=cfg();
@@ -851,15 +873,15 @@
         dinp.addEventListener('input',onDateInput);
         datetd.appendChild(dinp);tr.appendChild(datetd);
         var ntd=document.createElement('td');ntd.className='note';
-        var note=document.createElement('input');note.type='text';note.value=rec.note;note.placeholder='—';note.dataset.idx=rIdx;
-        note.addEventListener('input',onNoteInput);
-        // 悬停时若内容被裁切，用自定义浮层显示完整备注（原生 title 不可靠，见 showNoteTip 注释）
+        // 用 textarea 而非 input：input 是单行控件，无法换行，只能横向铺开
+        var note=document.createElement('textarea');note.rows=1;note.value=rec.note;note.placeholder='—';note.dataset.idx=rIdx;
+        note.addEventListener('input',function(e){onNoteInput(e);hideNoteTip();growNote(this);});
+        // 悬停时若内容被纵向裁切，用自定义浮层显示完整备注（原生 title 不可靠，见 showNoteTip 注释）
         note.addEventListener('mouseenter',function(){showNoteTip(this);});
         note.addEventListener('mouseleave',hideNoteTip);
-        // 聚焦时浮层展开的宽度按实际文字长度自适应（380–560px），让长备注尽量一次看全
-        note.addEventListener('focus',function(){hideNoteTip();this.style.width=Math.min(560,Math.max(380,this.scrollWidth+16))+'px';});
-        note.addEventListener('blur',function(){this.style.width='';});
-        note.addEventListener('input',hideNoteTip); // 编辑中内容已变化，先收起悬停提示
+        // 聚焦即向下展开到完整高度；失焦收回单行，避免表格长期被撑高
+        note.addEventListener('focus',function(){hideNoteTip();growNote(this);});
+        note.addEventListener('blur',function(){shrinkNote(this);});
         ntd.appendChild(note);tr.appendChild(ntd);
         tbody.appendChild(tr);
       });
