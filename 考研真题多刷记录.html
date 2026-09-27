@@ -90,6 +90,11 @@
   td.note input[type=text]{width:150px;padding:5px 6px;border:1px solid transparent;border-radius:6px;font-size:12px;font-family:inherit;text-align:left;background:#fff;}
   /* 聚焦时向左浮层展开到 380px（约 30 个汉字），编辑时能看全；不挤压其他列 */
   td.note input[type=text]:focus{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:380px;z-index:6;outline:none;border-color:var(--accent,#2F5597);background:#f6f9ff;box-shadow:0 6px 20px rgba(20,40,80,.2);}
+  /* 备注悬停浮层：替代原生 title——动态设置 title 在 Chrome 下经常不弹出，且有约 1 秒延迟。
+     用 position:fixed 挂在 body 上，避免被 .table-wrap 的 overflow:auto 裁掉。 */
+  .note-tip{position:fixed;z-index:50;max-width:440px;padding:6px 10px;border-radius:8px;
+    background:#22314a;color:#fff;font-size:12px;line-height:1.55;white-space:pre-wrap;
+    word-break:break-word;box-shadow:0 6px 20px rgba(10,20,40,.3);pointer-events:none;display:none;}
   td.total{font-weight:700;font-size:14px;}
   td.total.good{color:#1e7d32;background:#e6f4ea;border-radius:6px;}
   td.total.mid{color:#b07d00;background:#fff4d6;border-radius:6px;}
@@ -484,8 +489,13 @@
   // ===== 版本管理（唯一数据源）=====
   // 改版本号只需改下面 APP_VERSION 与 VERSION_HISTORY 两处；
   // 必须同步 CHANGELOG.md、README.md，并执行 node check-version.mjs 校验。规范见《版本更新规范.md》。
-  var APP_VERSION='1.1.3';
+  var APP_VERSION='1.1.4';
   var VERSION_HISTORY=[
+    {version:'1.1.4',date:'2026-09-25',changes:[
+      '修复 1.1.3 中「悬停备注看不到完整内容」：原生 title 在 mouseenter 里动态设置不可靠，改用自定义浮层',
+      '悬停立即显示完整备注，可自动换行、避免超出视口，短备注不弹',
+      '表格滚动或窗口缩放时自动收起悬停浮层，不残留'
+    ]},
     {version:'1.1.3',date:'2026-09-25',changes:[
       '修复成绩记录「备注」写长了就看不见的问题：备注列由 84px 加宽到 150px',
       '聚焦备注时输入框向左浮层展开，宽度按文字长度自适应（380–560px），不挤压其他列',
@@ -740,6 +750,35 @@
 
   function addTd(tr,txt,cls){var td=document.createElement('td');td.textContent=txt;if(cls)td.className=cls;tr.appendChild(td);return td;}
 
+  // ===== 备注悬停浮层 =====
+  // 原生 title 有两个问题：① 在 mouseenter 里动态设置时 Chrome 常常不弹出（hover 开始时
+  // 就已决定要不要弹）；② 有约 1 秒延迟。所以改用自定义浮层，立即显示、内容长可换行。
+  var noteTipEl=null;
+  function noteTip(){
+    if(!noteTipEl){
+      noteTipEl=document.createElement('div');
+      noteTipEl.className='note-tip';
+      document.body.appendChild(noteTipEl);
+      window.addEventListener('scroll',hideNoteTip,true); // 捕获阶段，表格内部滚动也能收到
+      window.addEventListener('resize',hideNoteTip);
+    }
+    return noteTipEl;
+  }
+  function hideNoteTip(){if(noteTipEl)noteTipEl.style.display='none';}
+  function showNoteTip(el){
+    // 只有文字真的被裁切时才弹，短备注不打扰
+    if(el.scrollWidth<=el.clientWidth+1||!el.value){hideNoteTip();return;}
+    var t=noteTip();
+    t.textContent=el.value;
+    t.style.display='block';
+    var r=el.getBoundingClientRect(),tw=t.offsetWidth,th=t.offsetHeight;
+    var top=r.top-th-8;
+    if(top<4)top=r.bottom+8;                              // 上方放不下就翻到下方
+    var left=Math.min(Math.max(6,r.left),window.innerWidth-tw-6);
+    t.style.top=top+'px';
+    t.style.left=left+'px';
+  }
+
   function renderTable(){
     var c=cfg();
     var thead=document.getElementById('theadRow');thead.innerHTML='';
@@ -808,11 +847,13 @@
         var ntd=document.createElement('td');ntd.className='note';
         var note=document.createElement('input');note.type='text';note.value=rec.note;note.placeholder='—';note.dataset.idx=rIdx;
         note.addEventListener('input',onNoteInput);
-        // 悬停时若内容被裁切，用原生 tooltip 显示完整备注（短备注不弹，避免噪音）
-        note.addEventListener('mouseenter',function(){this.title=(this.scrollWidth>this.clientWidth+1)?this.value:'';});
+        // 悬停时若内容被裁切，用自定义浮层显示完整备注（原生 title 不可靠，见 showNoteTip 注释）
+        note.addEventListener('mouseenter',function(){showNoteTip(this);});
+        note.addEventListener('mouseleave',hideNoteTip);
         // 聚焦时浮层展开的宽度按实际文字长度自适应（380–560px），让长备注尽量一次看全
-        note.addEventListener('focus',function(){this.style.width=Math.min(560,Math.max(380,this.scrollWidth+16))+'px';});
+        note.addEventListener('focus',function(){hideNoteTip();this.style.width=Math.min(560,Math.max(380,this.scrollWidth+16))+'px';});
         note.addEventListener('blur',function(){this.style.width='';});
+        note.addEventListener('input',hideNoteTip); // 编辑中内容已变化，先收起悬停提示
         ntd.appendChild(note);tr.appendChild(ntd);
         tbody.appendChild(tr);
       });
