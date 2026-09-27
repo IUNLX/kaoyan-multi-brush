@@ -1,54 +1,63 @@
 #!/bin/sh
 # ============================================================================
-# post-commit 钩子 —— 提交后自动推送到 GitHub
+# post-commit 钩子 —— 提交后提醒「还有提交未推送」，但 **不自动推送**
 #
-# 依据《版本更新规范.md》第六节：每次更新完成后必须推送。
-# 启用方式（已在本地配置好）：git config core.hooksPath .githooks
+# 依据《版本更新规范.md》核心原则 5、6：
+#   · 推送必须先征得用户同意，禁止自动推送；
+#   · 未推送期间所有改动合并为同一个版本，不逐次递增版本号。
 #
-# 跳过本次自动推送的两种方式：
-#   1) git commit --no-verify
-#   2) 设置环境变量 KAOYAN_NO_AUTOPUSH=1
+# 因此本钩子只做统计与提示，**永不联网**。
+# 跳过本次提醒：设置环境变量 KAOYAN_NO_PUSH_HINT=1
 #
-# 设计原则：推送失败绝不影响提交本身，只在终端给出醒目提示。
+# 设计原则：钩子绝不影响提交本身，任何异常都静默放行。
 # ============================================================================
 
 # 显式跳过
-if [ -n "$KAOYAN_NO_AUTOPUSH" ]; then
+if [ -n "$KAOYAN_NO_PUSH_HINT" ]; then
     exit 0
 fi
 
-REMOTE=origin
 GIT_DIR=$(git rev-parse --git-dir 2>/dev/null) || exit 0
 
-# 分离头指针状态（如正在查看历史提交）不推送
+# 分离头指针状态（如正在查看历史提交）不提示
 BRANCH=$(git symbolic-ref --quiet --short HEAD 2>/dev/null) || exit 0
 [ -z "$BRANCH" ] && exit 0
 
-# rebase / cherry-pick 过程中的中间提交不推送，等整体完成后再推
+# rebase / cherry-pick 过程中的中间提交不提示，等整体完成后再看
 if [ -d "$GIT_DIR/rebase-merge" ] || [ -d "$GIT_DIR/rebase-apply" ] || [ -d "$GIT_DIR/sequencer" ]; then
-    echo "[自动推送] 检测到 rebase/cherry-pick 进行中，跳过本次自动推送" >&2
-    exit 0
-fi
-
-# 未配置远端则跳过
-if ! git remote get-url "$REMOTE" >/dev/null 2>&1; then
-    echo "[自动推送] 未配置远端 $REMOTE，跳过自动推送" >&2
     exit 0
 fi
 
 SHORT=$(git rev-parse --short HEAD 2>/dev/null)
-echo "[自动推送] 正在推送 $BRANCH -> $REMOTE/$BRANCH ..."
 
-if git push "$REMOTE" "$BRANCH" 2>&1; then
-    echo "[自动推送] 完成：$SHORT 已同步到 GitHub"
-    exit 0
-fi
+# 统计未推送的提交数；拿不到上游 ref 时至少按 1 条提示
+PENDING=$(git rev-list --count "origin/$BRANCH..HEAD" 2>/dev/null)
+[ -z "$PENDING" ] && PENDING=1
 
 echo "" >&2
-echo "[自动推送] 推送失败，提交仍保留在本地（未丢失）。" >&2
-echo "[自动推送] 手动重试：  git push $REMOTE $BRANCH" >&2
-echo "[自动推送] 失败原因与处理见《版本更新规范.md》6.4 / 6.6 节。" >&2
+echo "[待推送] 已提交 $SHORT（仅本地）。当前 origin/$BRANCH 落后 $PENDING 个提交。" >&2
+echo "[待推送] 按规范：推送前需先征得用户同意，且这批改动会合并为同一个版本。" >&2
+echo "[待推送] 用户同意后执行：  git push origin $BRANCH" >&2
 echo "" >&2
 
-# 永远返回 0：推送失败不应让提交失败
 exit 0
+
+# ---------------------------------------------------------------------------
+# 【原「提交即自动推送」实现，已按规范停用】
+#
+# 恢复方法：取消下面整段注释，并同步修改《版本更新规范.md》6.7 节。
+# ⚠️ 恢复会绕过「推送需用户确认」的核心原则，务必先确认用户已同意长期自动推送。
+# ---------------------------------------------------------------------------
+# REMOTE=origin
+# if ! git remote get-url "$REMOTE" >/dev/null 2>&1; then
+#     echo "[自动推送] 未配置远端 $REMOTE，跳过自动推送" >&2
+#     exit 0
+# fi
+# echo "[自动推送] 正在推送 $BRANCH -> $REMOTE/$BRANCH ..." >&2
+# if git push "$REMOTE" "$BRANCH" 2>&1; then
+#     echo "[自动推送] 完成：$SHORT 已同步到 GitHub" >&2
+#     exit 0
+# fi
+# echo "[自动推送] 推送失败，提交仍保留在本地（未丢失）。" >&2
+# echo "[自动推送] 手动重试：  git push $REMOTE $BRANCH" >&2
+# exit 0
