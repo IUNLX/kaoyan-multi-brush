@@ -186,7 +186,7 @@ try {
     Write-Step '5/8 生成 Release 说明'
     $cl = [System.IO.File]::ReadAllText((Resolve-Path $CHANGELOG).Path, [System.Text.Encoding]::UTF8)
     $esc = [regex]::Escape($targetVersion)
-    $sec = [regex]::Match($cl, "(?ms)^##\s*\[$esc\][^\r\n]*\r?\n(.*?)(?=^##\s*\[|\z)")
+    $sec = [regex]::Match($cl, "(?ms)^##\s*\[$esc\][^\r\n]*\r?\n(.*?)(?=^##\s|\z)")
     $notes = ''
     if ($sec.Success) {
         $notes = $sec.Groups[1].Value -replace '(?s)\r?\n---\s*$', ''

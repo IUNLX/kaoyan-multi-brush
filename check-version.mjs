@@ -14,7 +14,7 @@
  *   6. README.md 的当前版本与 APP_VERSION 一致
  *   7. 版本号没有在其它位置被硬编码（页面标题、版本标签）
  *   8. 版本功能所需元素齐全
- *   9. 脚本文件编码：release.ps1 必须带 UTF-8 BOM；.githooks/* 必须纯 LF 且无 BOM
+ *   9. 脚本文件编码：所有 *.ps1 必须带 UTF-8 BOM；.githooks/* 必须纯 LF 且无 BOM
  *  10. 规范文件《项目规范.md》存在（全项目规则的唯一出处）
  */
 
@@ -25,7 +25,7 @@ import path from 'node:path';
 const HTML = '考研真题多刷记录.html';
 const CHANGELOG = 'CHANGELOG.md';
 const README = 'README.md';
-const LINK = '考研真题多刷记录.html - 快捷方式.lnk';
+const LINK = '考研真题多刷记录.html - 快捷方式.lnk'; // 仅作文档说明；不再据此告警，理由见文件末尾
 
 const results = [];
 const ok = (label, detail = '') => results.push({ level: 'ok', label, detail });
@@ -317,9 +317,11 @@ function inspect(file) {
 }
 
 // ---------- 附加提醒（不算失败） ----------
-if (fs.existsSync(path.resolve(LINK))) {
-  warn('本机快捷方式', `${LINK} 存在于工作目录，提交时请勿勾选（建议加入 .gitignore）`);
-}
+// 这里**故意不再**按「*.lnk 文件是否存在」告警：
+//   1. `.gitignore` 已含 `*.lnk`，该文件也已 `git rm --cached` 取消跟踪；
+//   2. 仅凭「文件存在」就提示「建议加入 .gitignore」会变成永久噪音（该动作早已完成），
+//      反而训练人忽略告警。
+// 「仍被 Git 跟踪」这一真正需要拦截的情况，由 release.ps1 用 `git ls-files -- '*.lnk'` 检查。
 
 // ---------- 输出 ----------
 const icon = { ok: '✅', fail: '❌', warn: '⚠️ ' };

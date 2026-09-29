@@ -10,7 +10,7 @@
     需要推送时显式加 -Push（阶段二·发版）。
 
 .PARAMETER Message
-    提交信息，格式遵循规范第五节，例如：
+    提交信息，格式遵循规范第六节，例如：
       .\release.ps1 "feat: 试卷总时间改为可填写"
 
 .PARAMETER Push
@@ -46,7 +46,7 @@ param(
 
 $ErrorActionPreference = 'Stop'
 
-# 规范第九节：禁止提交的文件
+# 规范第十二节：禁止提交的文件
 $ForbiddenPatterns = @(
     [pscustomobject]@{ Pattern = '\.lnk$';         Reason = '本机快捷方式，属个人环境文件' },
     [pscustomobject]@{ Pattern = '~\$.*\.xlsx$';   Reason = 'Excel 临时文件' },
