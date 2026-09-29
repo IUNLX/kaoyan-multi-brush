@@ -69,6 +69,7 @@
 | `项目规范.md` | **全项目操作强制遵守**的规范：流程、版本号、编码要求、验证要求、禁止事项（含给 AI 协作者的速览） |
 | `check-version.mjs` | 版本一致性校验脚本（`node check-version.mjs`） |
 | `release.ps1` | 提交脚本：校验 → 提交（默认不推送）；加 `-Push` 才推送并验证 |
+| `release-github.ps1` | 发版脚本：建附注 tag → **单独推送 tag** → 走 API 建 GitHub Release；`-DryRun` 可演练 |
 | `.githooks/` | Git 钩子：提交前自动校验版本号；提交后只提醒待推送（不自动推送） |
 | `.gitattributes` | 强制钩子脚本以 LF 检出（避免 `sh` 报 bad interpreter） |
 | `代码审查报告.md` | 全量代码审查结果与修复建议 |

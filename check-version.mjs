@@ -243,21 +243,37 @@ function inspect(file) {
   }
 }
 
-// release.ps1 必须带 UTF-8 BOM：
+// 所有 .ps1 必须带 UTF-8 BOM：
 // Windows PowerShell 5.1 对「无 BOM 的 UTF-8」会按系统 ANSI（本机 GBK）解码，
 // 中文注释与提示会变乱码并直接语法报错。pwsh 7 默认按 UTF-8 读，看不出这个问题。
+// 注意：编辑器「另存为 UTF-8」默认不带 BOM，改完 .ps1 极易踩坑，故对全部 .ps1 逐一校验。
 {
-  const info = inspect('release.ps1');
-  if (!info.ok) {
-    fail('release.ps1 编码', '文件不存在或不可读');
-  } else if (!info.bom) {
-    fail(
-      'release.ps1 编码',
-      '缺少 UTF-8 BOM，PowerShell 5.1 会按 GBK 解码导致语法报错。修复：' +
-        '$p=(Resolve-Path .\\release.ps1).Path;[IO.File]::WriteAllText($p,[IO.File]::ReadAllText($p,[Text.Encoding]::UTF8),(New-Object Text.UTF8Encoding($true)))',
-    );
+  let ps1Files = [];
+  try {
+    ps1Files = fs.readdirSync('.').filter((f) => f.toLowerCase().endsWith('.ps1')).sort();
+  } catch {
+    /* 读不到就当作没有 */
+  }
+
+  if (!ps1Files.length) {
+    fail('.ps1 编码', '未找到任何 .ps1 脚本（release.ps1 应存在）');
   } else {
-    ok('release.ps1 编码', 'UTF-8 带 BOM（PowerShell 5.1 可正确解析）');
+    const noBom = [];
+    for (const f of ps1Files) {
+      const info = inspect(f);
+      if (!info.ok) noBom.push(`${f}（不存在或不可读）`);
+      else if (!info.bom) noBom.push(f);
+    }
+    if (noBom.length) {
+      const first = noBom[0].replace(/（.*$/, '');
+      fail(
+        '.ps1 编码',
+        `${noBom.join('、')} 缺少 UTF-8 BOM，PowerShell 5.1 会按 GBK 解码导致语法报错。修复（以 ${first} 为例）：` +
+          `$p=(Resolve-Path .\\${first}).Path;[IO.File]::WriteAllText($p,[IO.File]::ReadAllText($p,[Text.Encoding]::UTF8),(New-Object Text.UTF8Encoding($true)))`,
+      );
+    } else {
+      ok('.ps1 编码', `${ps1Files.length} 个脚本均为 UTF-8 带 BOM（${ps1Files.join('、')}）`);
+    }
   }
 }
 
