@@ -13,6 +13,7 @@
  *   5. CHANGELOG.md 最新版本区段与 APP_VERSION 一致，且保留 [未发布] 区段
  *   6. README.md 的当前版本与 APP_VERSION 一致
  *   7. 版本号没有在其它位置被硬编码（页面标题、版本标签）
+ *   8. 脚本文件编码：release.ps1 必须带 UTF-8 BOM；.githooks/* 必须纯 LF 且无 BOM
  */
 
 import fs from 'node:fs';
@@ -224,6 +225,65 @@ if (missingIds.length) {
   fail('版本功能元素', `页面缺少 ${missingIds.map(([id, name]) => `#${id}（${name}）`).join('、')}`);
 } else {
   ok('版本功能元素', `${requiredIds.length} 个元素齐全`);
+}
+
+// ---------- 9. 脚本文件编码（这个坑踩过两次，做成自动校验） ----------
+/** 读原始字节，判断 BOM 与 CR 数量 */
+function inspect(file) {
+  try {
+    const buf = fs.readFileSync(path.resolve(file));
+    const bom = buf.length >= 3 && buf[0] === 0xef && buf[1] === 0xbb && buf[2] === 0xbf;
+    let cr = 0;
+    for (const b of buf) if (b === 0x0d) cr++;
+    return { ok: true, bom, cr };
+  } catch {
+    return { ok: false };
+  }
+}
+
+// release.ps1 必须带 UTF-8 BOM：
+// Windows PowerShell 5.1 对「无 BOM 的 UTF-8」会按系统 ANSI（本机 GBK）解码，
+// 中文注释与提示会变乱码并直接语法报错。pwsh 7 默认按 UTF-8 读，看不出这个问题。
+{
+  const info = inspect('release.ps1');
+  if (!info.ok) {
+    fail('release.ps1 编码', '文件不存在或不可读');
+  } else if (!info.bom) {
+    fail(
+      'release.ps1 编码',
+      '缺少 UTF-8 BOM，PowerShell 5.1 会按 GBK 解码导致语法报错。修复：' +
+        '$p=(Resolve-Path .\\release.ps1).Path;[IO.File]::WriteAllText($p,[IO.File]::ReadAllText($p,[Text.Encoding]::UTF8),(New-Object Text.UTF8Encoding($true)))',
+    );
+  } else {
+    ok('release.ps1 编码', 'UTF-8 带 BOM（PowerShell 5.1 可正确解析）');
+  }
+}
+
+// .githooks/* 必须纯 LF 且不带 BOM，否则 Git for Windows 的 sh 会报 bad interpreter
+{
+  const dir = path.resolve('.githooks');
+  let files = [];
+  try {
+    files = fs.readdirSync(dir).filter((f) => fs.statSync(path.join(dir, f)).isFile());
+  } catch {
+    /* 目录不存在则跳过 */
+  }
+  if (!files.length) {
+    warn('.githooks 编码', '未找到钩子脚本，跳过检查');
+  } else {
+    const bad = [];
+    for (const f of files) {
+      const info = inspect(path.join('.githooks', f));
+      if (!info.ok) continue;
+      if (info.bom) bad.push(`${f} 带 BOM`);
+      else if (info.cr > 0) bad.push(`${f} 含 ${info.cr} 个 CR（非纯 LF）`);
+    }
+    if (bad.length) {
+      fail('.githooks 编码', `${bad.join('、')}；钩子必须为纯 LF 且无 BOM，否则 sh 报 bad interpreter`);
+    } else {
+      ok('.githooks 编码', `${files.length} 个钩子均为纯 LF 无 BOM`);
+    }
+  }
 }
 
 // ---------- 附加提醒（不算失败） ----------

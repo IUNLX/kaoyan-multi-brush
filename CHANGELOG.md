@@ -19,13 +19,13 @@
 ## [未发布]
 
 ### 新增
-- （暂无）
+- `check-version.mjs` 新增第 8 项**文件编码校验**：`release.ps1` 必须带 UTF-8 BOM；`.githooks/*` 必须纯 LF 且无 BOM。此前这两项只能靠人肉记住，已经因此踩坑两次。
 
 ### 变更
 - （暂无）
 
 ### 修复
-- （暂无）
+- 修复 `release.ps1` 推送后报 `Cannot convert ... to type SwitchParameter` 的问题：新增的 `[switch]$Push` 参数与既有局部变量 `$push` 在 **PowerShell 里是同一个变量**（变量名不区分大小写），把 git 返回对象赋给 switch 类型即抛错。局部变量已改名为 `$pushResult`。注意：**`git push` 本身已成功执行**，仅脚本收尾阶段报错并误报为推送失败。
 
 ---
 

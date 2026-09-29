@@ -203,10 +203,12 @@ try {
     }
 
     Write-Step '6/6 推送到 GitHub'
-    $push = Invoke-Git -GitArgs @('push', $Remote, $Branch) -AllowFail
-    $push.Output | Where-Object { $_ } | ForEach-Object { Write-Host "    $_" }
+    # 注意：PowerShell 变量名不区分大小写，这里**不能**用「push」当变量名——
+    # 那会与本脚本的 [switch]$Push 参数变成同一个变量，赋值时抛 SwitchParameter 转换错误。
+    $pushResult = Invoke-Git -GitArgs @('push', $Remote, $Branch) -AllowFail
+    $pushResult.Output | Where-Object { $_ } | ForEach-Object { Write-Host "    $_" }
 
-    if ($push.Code -ne 0) {
+    if ($pushResult.Code -ne 0) {
         Write-Err '推送失败（提交已在本地完成，未推送）。'
         Write-Warn '常见原因与处理见《版本更新规范.md》第 6.4 节。'
         exit 1
