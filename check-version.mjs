@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * 版本一致性校验脚本 —— 《版本更新规范.md》第四步 ⑤
+ * 版本一致性校验脚本 —— 《项目规范.md》第五步 ②/④
  *
  * 用法：node check-version.mjs
  * 退出码：0 = 全部一致；1 = 存在不一致（不得提交）
@@ -13,7 +13,9 @@
  *   5. CHANGELOG.md 最新版本区段与 APP_VERSION 一致，且保留 [未发布] 区段
  *   6. README.md 的当前版本与 APP_VERSION 一致
  *   7. 版本号没有在其它位置被硬编码（页面标题、版本标签）
- *   8. 脚本文件编码：release.ps1 必须带 UTF-8 BOM；.githooks/* 必须纯 LF 且无 BOM
+ *   8. 版本功能所需元素齐全
+ *   9. 脚本文件编码：release.ps1 必须带 UTF-8 BOM；.githooks/* 必须纯 LF 且无 BOM
+ *  10. 规范文件《项目规范.md》存在（全项目规则的唯一出处）
  */
 
 import fs from 'node:fs';
@@ -286,6 +288,18 @@ function inspect(file) {
   }
 }
 
+// ---------- 10. 规范文件存在 ----------
+// 《项目规范.md》是全项目规则的唯一出处，被 README / release.ps1 / 本脚本 / 主程序注释引用；
+// 缺失或改名会让所有引用失效，因此纳入校验。
+{
+  const spec = '项目规范.md';
+  if (fs.existsSync(path.resolve(spec))) {
+    ok('规范文件', `${spec} 存在`);
+  } else {
+    fail('规范文件', `缺少 ${spec}（全项目规则的唯一出处，被多处引用；若已改名请同步更新所有引用）`);
+  }
+}
+
 // ---------- 附加提醒（不算失败） ----------
 if (fs.existsSync(path.resolve(LINK))) {
   warn('本机快捷方式', `${LINK} 存在于工作目录，提交时请勿勾选（建议加入 .gitignore）`);
@@ -293,7 +307,7 @@ if (fs.existsSync(path.resolve(LINK))) {
 
 // ---------- 输出 ----------
 const icon = { ok: '✅', fail: '❌', warn: '⚠️ ' };
-console.log('\n版本一致性校验（规范见《版本更新规范.md》）\n' + '─'.repeat(52));
+console.log('\n版本一致性校验（规范见《项目规范.md》）\n' + '─'.repeat(52));
 for (const r of results) {
   console.log(`${icon[r.level]} ${r.label}${r.detail ? '：' + r.detail : ''}`);
 }

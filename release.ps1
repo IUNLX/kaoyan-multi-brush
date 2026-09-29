@@ -3,7 +3,7 @@
     版本校验 → 暂存 → 提交；只有显式加 -Push 才推送到 GitHub。
 
 .DESCRIPTION
-    按《版本更新规范.md》第四节执行。任何一步失败立即中止，不会提交、不会推送。
+    按《项目规范.md》第五节执行。任何一步失败立即中止，不会提交、不会推送。
 
     **默认只提交到本地，不推送**（阶段一·累积）。这是刻意的安全默认值：
     规范要求「推送前必须先征得用户同意」，默认不联网就不会因忘记加参数而误推。
@@ -111,7 +111,7 @@ try {
     Write-Step '1/6 版本一致性校验（node check-version.mjs）'
     & node check-version.mjs
     if ($LASTEXITCODE -ne 0) {
-        throw '版本校验未通过，已中止。请按《版本更新规范.md》修正后重试。'
+        throw '版本校验未通过，已中止。请按《项目规范.md》修正后重试。'
     }
 
     # ---------- 2. 检查有无改动 ----------
@@ -210,7 +210,7 @@ try {
 
     if ($pushResult.Code -ne 0) {
         Write-Err '推送失败（提交已在本地完成，未推送）。'
-        Write-Warn '常见原因与处理见《版本更新规范.md》第 6.4 节。'
+        Write-Warn '常见原因与处理见《项目规范.md》7.4 节。'
         exit 1
     }
 
@@ -233,6 +233,6 @@ try {
 catch {
     Write-Host ''
     Write-Err $_.Exception.Message
-    Write-Host "`n发布已中止。规范见《版本更新规范.md》。`n" -ForegroundColor Yellow
+    Write-Host "`n发布已中止。规范见《项目规范.md》。`n" -ForegroundColor Yellow
     exit 1
 }
