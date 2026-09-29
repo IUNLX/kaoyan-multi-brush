@@ -150,6 +150,8 @@
   .plan-list{display:flex;flex-direction:column;gap:12px;}
   .plan-empty{text-align:center;color:var(--muted);padding:48px 16px;font-size:14px;}
   .plan-item{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px 16px;box-shadow:0 1px 3px rgba(20,40,80,.05);}
+  /* 从首页「今日计划」跳转过来时，目标记录短暂高亮一下，便于找到 */
+  .plan-item-flash{border-color:#E67E22;box-shadow:0 0 0 3px rgba(230,126,34,.22);transition:box-shadow .3s,border-color .3s;}
   .plan-item-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
   .plan-period{font-weight:700;color:#E67E22;font-size:15px;}
   .plan-actions button{padding:4px 10px;font-size:12px;margin-left:6px;}
@@ -181,10 +183,14 @@
   .modal-box.draggable{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);}
   .modal-box.draggable .modal-head{cursor:move;}
   .today-plan{margin-top:22px;border-color:#F3D4B0;background:linear-gradient(180deg,#fffdf9,#fff);}
-  .today-item{background:#fff;border:1px solid #F3D4B0;border-left:4px solid #E67E22;border-radius:10px;padding:12px 14px;margin-bottom:10px;}
+  .today-item{background:#fff;border:1px solid #F3D4B0;border-left:4px solid #E67E22;border-radius:10px;padding:12px 14px;margin-bottom:10px;cursor:pointer;transition:box-shadow .18s,border-color .18s,transform .18s;}
+  .today-item:hover{border-color:#E67E22;box-shadow:0 4px 14px rgba(230,126,34,.16);transform:translateY(-1px);}
   .today-item-head{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:6px;}
   .today-level{font-size:12px;font-weight:700;color:#C0560F;background:#FDF0E2;border:1px solid #F3D4B0;border-radius:12px;padding:2px 10px;}
   .today-range{font-size:13px;color:#E67E22;font-weight:700;}
+  /* 可点击提示：附在日期范围后，不用绝对定位以免压住正文 */
+  .today-range::after{content:" · 点击查看详情";font-size:11px;font-weight:400;color:#8a94a6;}
+  .today-item:hover .today-range::after{color:#C0560F;}
   .today-sub{font-size:13px;margin:4px 0;line-height:1.6;white-space:pre-wrap;word-break:break-word;}
   .today-sub b{color:#C0560F;}
   .countdown-card{position:relative;overflow:hidden;display:flex;align-items:center;gap:20px;margin-bottom:18px;padding:26px 28px;border-radius:20px;color:#fff;background:linear-gradient(135deg,#1e3a8a 0%,#2F5597 42%,#7C3AED 100%);box-shadow:0 12px 32px rgba(47,85,151,.32);}
@@ -494,8 +500,14 @@
   // ===== 版本管理（唯一数据源）=====
   // 改版本号只需改下面 APP_VERSION 与 VERSION_HISTORY 两处；
   // 必须同步 CHANGELOG.md、README.md，并执行 node check-version.mjs 校验。规范见《版本更新规范.md》。
-  var APP_VERSION='1.2.0';
+  var APP_VERSION='1.3.0';
   var VERSION_HISTORY=[
+    {version:'1.3.0',date:'2026-09-25',changes:[
+      '新增：首页「今日计划」可点击，跳转到「总结与计划」的「二者合一」视图，并自动滚动定位、高亮对应记录',
+      '今日计划项增加可点击提示（悬停浮起 + 日期范围后显示「点击查看详情」）',
+      '推送改为需用户确认：新增两阶段发版流程，未推送期间所有改动合并为同一个版本',
+      'release.ps1 默认只提交、不推送；post-commit 钩子改为只提醒待推送'
+    ]},
     {version:'1.2.0',date:'2026-09-25',changes:[
       '备注填写改为「向下延伸」：聚焦后按内容自动增高并内部换行，不再向左横向铺开遮挡「日期」列',
       '备注支持多行：单行 input 换成 textarea，可换行书写',
@@ -1822,13 +1834,31 @@
     if(!a||!b)return 0;
     return Math.round((b-a)/86400000);
   }
+  // 跳到「总结与计划」后，把列表中同一时间段的那条滚到视野中央并短暂高亮
+  function highlightPlanRange(start,end){
+    var want=fmtRange(start,end);
+    if(!want)return;
+    setTimeout(function(){
+      var items=document.querySelectorAll('#planList .plan-item');
+      for(var i=0;i<items.length;i++){
+        var p=items[i].querySelector('.plan-period');
+        if(p&&p.textContent===want){
+          var el=items[i];
+          el.scrollIntoView({behavior:'smooth',block:'center'});
+          el.classList.add('plan-item-flash');
+          setTimeout(function(){el.classList.remove('plan-item-flash');},2200);
+          break;
+        }
+      }
+    },60);
+  }
   function renderTodayPlan(){
     var today=dateToStr(new Date());
     var hits=[];
     PLAN_LEVELS.forEach(function(l){
       (planData[l.key]||[]).forEach(function(en){
         if(en.type!=='plan'||!en.start||!en.end)return;
-        if(today>=en.start&&today<=en.end)hits.push({label:levelLabel(l.key),en:en});
+        if(today>=en.start&&today<=en.end)hits.push({key:l.key,label:levelLabel(l.key),en:en});
       });
     });
     var card=document.getElementById('todayPlanCard');
@@ -1848,6 +1878,15 @@
       var lv=document.createElement('span');lv.className='today-level';lv.textContent=h.label;
       var rg=document.createElement('span');rg.className='today-range';rg.textContent=fmtRange(h.en.start,h.en.end);
       hd.appendChild(lv);hd.appendChild(rg);div.appendChild(hd);
+      
+      // 点击整个今日计划项 → 跳到「总结与计划」的「二者合一」视图并定位到该条
+      div.addEventListener('click',function(){
+        // 必须用 showPlan：它会同时切好【级别】与【视图类型】。
+        // 只设 currentType 不够——级别不跟着切就会出现「点了每周、列表仍停在每日」，找不到目标记录。
+        showPlan(h.key,'combined');
+        highlightPlanRange(h.en.start,h.en.end);
+      });
+      
       var planOverall=h.en.overall;
       var planSubs=h.en.subs;
       if(planOverall){
