@@ -285,7 +285,7 @@
     <div class="card today-plan" id="reminderCard" style="display:none;">
       <h2 style="color:#E67E22;">总结与计划提醒</h2>
       <div id="reminderList"></div>
-      <div class="tip">范围结束日到了，提醒该做总结或新一轮计划；点击提醒直接进入「总结与计划」页面对应位置。</div>
+      <div class="tip">范围结束日到了，提醒该做总结或新一轮计划；点击提醒进入「总结与计划」的「二者合一」视图，并定位到对应记录。</div>
     </div>
     <div class="card backup-card">
       <h2 style="color:#E67E22;">数据备份 · 多设备同步</h2>
@@ -2210,7 +2210,10 @@
     list.innerHTML='';
     reminders.forEach(function(r){
       var div=document.createElement('div');div.className='today-item reminder-item';
-      clickableDiv(div,function(){showPlan(r.level,r.types.indexOf('summary')>=0?'summary':'plan');});
+      // 统一进「二者合一」视图：一条提醒可能同时包含「该总结 + 该新计划」（types 有两项），
+      // 只切到单一视图会让另一半无处可看。与首页「今日计划」条目保持一致的口径，
+      // 跳转后把该时间段对应的记录滚到视野中央并短暂高亮。
+      clickableDiv(div,function(){showPlan(r.level,'combined');highlightPlanRange(r.start,r.end);});
       var hd=document.createElement('div');hd.className='today-item-head';
       var lv=document.createElement('span');lv.className='today-level';lv.textContent=levelLabel(r.level);
       // 计划提醒标注的是「新一轮」应覆盖的区间；总结提醒标注刚结束、需要总结的区间
