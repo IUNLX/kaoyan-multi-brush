@@ -85,6 +85,8 @@
   .sec-cell{display:flex;flex-direction:column;align-items:center;gap:2px;}
   .sec-cell input{width:56px;}
   .sec-cell input.sec-time{width:44px;font-size:11px;padding:2px 3px;color:var(--muted);}
+  /* 老数据里超过该年份题型满分的分数（如 2020 年选择题填了 40 分）：只标出不改值，提示用户核对 */
+  .sec-cell input.over-full{border-color:#c0392b;box-shadow:0 0 0 2px rgba(192,57,43,.15);}
   td.time-total{font-weight:700;color:#2F5597;}
   td.time-total input.time{width:74px;text-align:center;font-weight:700;color:#2F5597;}
   td.time-total input.time::placeholder{font-weight:400;color:#9aa4b5;}
@@ -282,7 +284,7 @@
     <div class="cards">
       <div class="subject-card" data-sub="math" style="--accent:#C00000;">
         <div class="name">数学一</div><div class="full">满分 150</div>
-        <div class="meta">2005–2026<br>科目：高数·线代·概率<br>题型：选择·填空·解答</div>
+        <div class="meta">2005–2026<br>题型：选择·填空·解答<br>2021 年起分值不同</div>
       </div>
       <div class="subject-card" data-sub="cs408" style="--accent:#0E7A5F;">
         <div class="name">408</div><div class="full">满分 150</div>
@@ -345,7 +347,7 @@
       </div>
       <div class="tip">查看工具版本历史记录，导出版本信息用于版本对比和更新日志管理。</div>
     </div>
-    <footer><div>数学一「高数/线代/概率」按 82/34/34 估算；408 自 2009 年统考；政治客观题＝单选＋多选。</div></footer>
+    <footer><div>数学一：2021 年起选择 50／填空 30／解答 70，2020 年及以前选择 32／填空 24／解答 94；408 自 2009 年统考；政治客观题＝单选＋多选。</div></footer>
   </div>
 
   <!-- 科目页 -->
@@ -620,7 +622,19 @@
 
   // 一键备份/恢复的**载荷格式**版本（与 APP_VERSION 无关）。
   // 备份结构发生不兼容变化时才 +1，恢复时据此拒绝「比当前更新的备份」。
-  var BACKUP_VERSION=1;
+  //  v2 = 数学记录由 6 列变 3 列（见 STORAGE_V 的 v4）。载荷外壳没变，但旧版本读v2备份会把
+  //       题型分数错当成科目分数，所以提升版本号让旧版本直接拒绝恢复，而不是静默错位。
+  var BACKUP_VERSION=2;
+
+  // 单科数据的**存储结构**版本（写在 kaoyan_<科目>_v1 里）：
+  //  v1 = 每套试卷预建全部刷次的空占位记录
+  //  v2 = 刷次改为每套试卷单独增减（「全部刷次」占位记录被清理）
+  //  v3 = 新增 removedYears（记住用户主动删除过的默认年份，避免删掉的卷子刷新后复活）
+  //  v4 = 数学去掉「高数 / 线代 / 概率」三列（s / times 由 6 列变 3 列），旧值搬到隐藏字段 sSubj / tSubj
+  var STORAGE_V=4;
+  // v4 之前数学的前三列。列是**按数组下标**存的，少读三列会让「选择题」的分数被当成「高等数学」，
+  // 因此迁移时必须显式把这几个下标搬走（见 loadData 里的 v3→v4）。
+  var OLD_MATH_SECTION_COUNT=3;
 
   function range(a,b){var arr=[];for(var i=a;i<=b;i++)arr.push(i);return arr;}
 
@@ -641,12 +655,17 @@
       id:'math',name:'数学一',full:150,accent:'#C00000',target:60,
       years:range(2005,2026),perSectionTime:true,
       sections:[
-        {name:'高等数学',full:82},{name:'线性代数',full:34},{name:'概率论',full:34},
         {name:'选择题',full:50},{name:'填空题',full:30},{name:'解答题',full:70}
       ],
-      totalIndices:[3,4,5],
-      subtotals:[{name:'科目合计',full:150,indices:[0,1,2]}],
-      footer:'科目：高数82＋线代34＋概率34；题型：选择50＋填空30＋解答70。总分＝选择＋填空＋解答＝150'
+      // 2021 年数学卷改革：题型分值变了（选择 8×4=32 → 10×5=50、填空 6×4=24 → 6×5=30、解答 9 题 94 → 6 题 70）。
+      // sections[].full 记 2021 年及以后的满分；yearBands 按年份覆盖，没被覆盖的年份段回落到 sections[].full。
+      yearBands:[
+        {to:2020,fulls:{'选择题':32,'填空题':24,'解答题':94}},
+        {from:2021,fulls:{'选择题':50,'填空题':30,'解答题':70}}
+      ],
+      totalIndices:null,
+      subtotals:[],
+      footer:'题型：2021 年起 选择50＋填空30＋解答70；2020 年及以前 选择32＋填空24＋解答94。总分＝选择＋填空＋解答＝150'
     },
     cs408:{
       id:'cs408',name:'408 计算机基础综合',full:150,accent:'#0E7A5F',target:60,
@@ -714,7 +733,7 @@
       var p={id:genId(),name:String(y),active:true};ps.push(p);
       rs.push(newRoundRecord(p.id,'一刷')); // 每套试卷默认只有「一刷」
     });
-    return {v:2,papers:ps,records:rs};
+    return {v:STORAGE_V,papers:ps,records:rs};
   }
   function migrateOld(oldArr){
     var c=cfg();var ps=[],rs=[],seen={};
@@ -722,12 +741,22 @@
       if(r==null)return;
       var key=String(r.year);
       if(!seen[key]){var id=genId();seen[key]=id;ps.push({id:id,name:key,active:true});}
-      var s=(r.s||[]).slice(0,c.sections.length).map(numOrNull);while(s.length<c.sections.length)s.push(null);
+      // 数学在 v4 之前前三列是「高数/线代/概率」。裸数组格式同样按列下标存，必须先搬走这三列再截断，
+      // 否则「高等数学」的分数会被当成「选择题」（与 loadData 的 v3→v4 同一口径）。
+      var rawS=Array.isArray(r.s)?r.s.slice():[],rawT=Array.isArray(r.times)?r.times.slice():null,subjS=null,subjT=null;
+      if(c.id==='math'&&rawS.length>=OLD_MATH_SECTION_COUNT){
+        subjS=rawS.slice(0,OLD_MATH_SECTION_COUNT).map(numOrNull);rawS=rawS.slice(OLD_MATH_SECTION_COUNT);
+        if(rawT){subjT=rawT.slice(0,OLD_MATH_SECTION_COUNT).map(numOrNull);rawT=rawT.slice(OLD_MATH_SECTION_COUNT);}
+      }
+      var s=rawS.slice(0,c.sections.length).map(numOrNull);while(s.length<c.sections.length)s.push(null);
       // 保留旧格式里可能存在的 times / time / date 字段，不要写死成 null 丢数据；
       // round 缺失时兜底成「一刷」，否则该记录会因刷次对不上而永远不显示
-      rs.push({paperId:seen[key],round:r.round||'一刷',s:s,
-               times:(Array.isArray(r.times)?r.times.slice(0,c.sections.length).map(numOrNull):null),
-               note:r.note||'',time:numOrNull(r.time),date:r.date||null});
+      var rec={paperId:seen[key],round:r.round||'一刷',s:s,
+               times:(rawT?rawT.slice(0,c.sections.length).map(numOrNull):null),
+               note:r.note||'',time:numOrNull(r.time),date:r.date||null};
+      if(subjS)rec.sSubj=subjS;
+      if(subjT)rec.tSubj=subjT;
+      rs.push(rec);
     });
     return {papers:ps,records:rs};
   }
@@ -746,14 +775,30 @@
       }
     }catch(e){}
     if(!state)state=buildDefault();
-    if(state.v!==2&&state.v!==3){
+    var oldV=numOrNull(state.v)||1;
+    if(oldV<2){
       // v1 → v2：旧版会为每套试卷预建「全部刷次」的空占位记录；现在刷次改为每套试卷单独增减，
       // 这些一行都没填过的占位记录会清掉，只保留真正填过内容的刷次（默认回到只有一刷）。
       state.records=state.records.filter(roundHasData);
     }
     // v2 → v3：新增 removedYears（见其声明处注释）
     if(!Array.isArray(state.removedYears))state.removedYears=[];
-    state.v=3;
+    // v3 → v4：数学去掉「高数 / 线代 / 概率」三列。列是**按数组下标**存的，必须先把旧的前三列搬到
+    // 隐藏字段 sSubj / tSubj，再把 s / times 切掉这三列；旧分**不删除**（规范第九节：宁可留脏字段，
+    // 也不能让用户已录入的成绩消失）。幂等：只有长度足够（确实是旧布局）时才迁移，重复执行不会二次截断。
+    if(oldV<4&&c.id==='math'){
+      state.records.forEach(function(r){
+        // 只有「列数多于当前题型数」才说明是 v4 之前的布局（数学旧布局为 6 列）。已迁移过的记录列数正好相等，
+        // 必须跳过——裸数组格式在 migrateOld() 里已经搬过一次，否则这里会把它二次截断成空数组。
+        if(!Array.isArray(r.s)||r.s.length<=c.sections.length)return;
+        if(Array.isArray(r.sSubj))return; // 双保险：已有隐藏字段说明搬过了
+        if(!Array.isArray(r.tSubj)&&Array.isArray(r.times))r.tSubj=r.times.slice(0,OLD_MATH_SECTION_COUNT);
+        r.sSubj=r.s.slice(0,OLD_MATH_SECTION_COUNT);
+        r.s=r.s.slice(OLD_MATH_SECTION_COUNT);
+        if(Array.isArray(r.times))r.times=r.times.slice(OLD_MATH_SECTION_COUNT);
+      });
+    }
+    state.v=STORAGE_V;
     state.records.forEach(function(r){
       // 成绩与分项时间统一规范成 number / null（见 numOrNull 注释）
       r.s=(r.s||[]).slice(0,c.sections.length).map(numOrNull);
@@ -788,9 +833,51 @@
       saveData();
     }
   }
-  function saveData(){safeSet(storeKey(),JSON.stringify({v:3,papers:papers,records:records,removedYears:removedYears}));}
+  function saveData(){safeSet(storeKey(),JSON.stringify({v:STORAGE_V,papers:papers,records:records,removedYears:removedYears}));}
 
   function totalIndices(){var c=cfg();return c.totalIndices||c.sections.map(function(_,i){return i;});}
+  // ===== 题型满分：可按年份分档（数学 2021 年改革后选择/填空/解答的分值不同）=====
+  // 某套试卷（试卷名就是年份）里某题型的实际满分；CONFIG 的 yearBands 可覆盖，未覆盖的年份段用 sections[].full。
+  function sectionFull(sec,paperName){
+    var c=cfg(),y=parseInt(paperName,10);
+    if(!c.yearBands||!isFinite(y))return sec.full;
+    for(var i=0;i<c.yearBands.length;i++){
+      var b=c.yearBands[i];
+      if(b.from!=null&&y<b.from)continue;
+      if(b.to!=null&&y>b.to)continue;
+      return (b.fulls&&b.fulls[sec.name]!=null)?b.fulls[sec.name]:sec.full;
+    }
+    return sec.full;
+  }
+  // 该题型在所有年份段里的最大满分：列头与曲线 Y 轴上限用它，免得把新卷的高分裁掉
+  function sectionFullMax(sec){
+    var m=sec.full;
+    (cfg().yearBands||[]).forEach(function(b){var f=b.fulls&&b.fulls[sec.name];if(f!=null&&f>m)m=f;});
+    return m;
+  }
+  // 跨年份段满分不同时显示成「32/50」，相同时只显示一个值
+  function sectionFullLabel(sec){
+    var vals=[sec.full];
+    (cfg().yearBands||[]).forEach(function(b){
+      var f=b.fulls&&b.fulls[sec.name];
+      if(f!=null&&vals.indexOf(f)<0)vals.push(f);
+    });
+    vals.sort(function(a,b){return a-b;});
+    return vals.join('/');
+  }
+  // 列头悬停提示：把每个年份段各自的满分说清楚
+  function sectionFullTip(sec){
+    var c=cfg();
+    if(!c.yearBands||sectionFullLabel(sec).indexOf('/')<0)return sec.name+'：满分 '+sec.full;
+    var parts=[];
+    c.yearBands.forEach(function(b){
+      var f=b.fulls&&b.fulls[sec.name];
+      if(f==null)return;
+      var r=(b.from!=null&&b.to!=null)?(b.from+'–'+b.to):(b.from!=null?('≥'+b.from):('≤'+b.to));
+      parts.push(r+' 年：'+f+' 分');
+    });
+    return sec.name+'：'+parts.join('；');
+  }
   // 把「数字 / 数字字符串 / 空串 / null / undefined / 非数字」统一规范成 number 或 null。
   // 旧数据与外部导入可能是数字字符串或空串，不规范化会让 sumOf 变成字符串拼接，
   // 继而让 fmt() 抛 TypeError 中断整张表格的渲染。
@@ -961,9 +1048,9 @@
   function renderTable(){
     var c=cfg();
     var thead=document.getElementById('theadRow');thead.innerHTML='';
-    function th(html){var x=document.createElement('th');x.innerHTML=html;thead.appendChild(x);}
+    function th(html,title){var x=document.createElement('th');x.innerHTML=html;if(title)x.title=title;thead.appendChild(x);}
     th('试卷');th('刷次');
-    c.sections.forEach(function(s){th(s.name+'<small>('+s.full+')</small>');});
+    c.sections.forEach(function(s){th(s.name+'<small>('+sectionFullLabel(s)+')</small>',sectionFullTip(s));});
     c.subtotals.forEach(function(s){th(s.name+'<small>('+s.full+')</small>');});
     th('总分');th('时间<small>(分)</small>');th('日期');th('备注');
 
@@ -992,13 +1079,20 @@
         c.sections.forEach(function(sec,si){
           var td=document.createElement('td');
           var wrap=document.createElement('div');wrap.className='sec-cell';
-          var inp=document.createElement('input');inp.type='number';inp.min=0;inp.max=sec.full;inp.step=0.5;
+          var secFull=sectionFull(sec,p.name); // 该年份这套卷此题的满分（数学 2021 年前后不同）
+          var inp=document.createElement('input');inp.type='number';inp.min=0;inp.max=secFull;inp.step=0.5;
           inp.value=rec.s[si]===null?'':rec.s[si];
-          inp.dataset.idx=rIdx;inp.dataset.si=si;inp.dataset.full=sec.full;
+          inp.dataset.idx=rIdx;inp.dataset.si=si;inp.dataset.full=secFull;
           // 步长统一 0.5（客观题按整数、主观题可能有半分），用 title 说明；
           // aria-label 让读屏能报出「哪套卷、哪一刷、哪个题型」
-          inp.title=sec.name+'：0 ~ '+sec.full+' 分，可按 0.5 递增';
-          inp.setAttribute('aria-label',p.name+' '+rd+' '+sec.name+' 得分，满分 '+sec.full);
+          inp.title=sec.name+'：0 ~ '+secFull+' 分，可按 0.5 递增';
+          inp.setAttribute('aria-label',p.name+' '+rd+' '+sec.name+' 得分，满分 '+secFull);
+          // 老数据可能是在「该列还按 50 分记」时填的，值会超过该年份的真实满分。
+          // 不静默改用户分数，只标红提示（编辑时才会按上限收敛）。
+          if(rec.s[si]!=null&&rec.s[si]>secFull){
+            inp.classList.add('over-full');
+            inp.title+='；⚠ 该年份此题型满分为 '+secFull+' 分，当前值超出，请核对';
+          }
           inp.addEventListener('input',onScoreInput);
           wrap.appendChild(inp);
           if(c.perSectionTime){
@@ -1109,7 +1203,7 @@
   function plotDimensions(){
     var c=cfg();
     var dims=[{name:'总分',full:c.full,value:function(rec){return totalOf(rec);}}];
-    c.sections.forEach(function(s,si){dims.push({name:s.name,full:s.full,value:function(rec){return rec.s[si];}});});
+    c.sections.forEach(function(s,si){dims.push({name:s.name,full:sectionFullMax(s),value:function(rec){return rec.s[si];}});});
     c.subtotals.forEach(function(sub){dims.push({name:sub.name,full:sub.full,value:function(rec){return sumOf(rec,sub.indices);}});});
     return dims;
   }
@@ -1121,7 +1215,14 @@
   }
   function populateDimSelect(){
     var sel=document.getElementById('dimSelect');sel.innerHTML='';
-    plotDimensions().forEach(function(d){var o=document.createElement('option');o.value=d.name;o.textContent=d.name+'（满分'+d.full+'）';sel.appendChild(o);});
+    var c=cfg();
+    plotDimensions().forEach(function(d){
+      // 题型满分跨年份段不同时显示「32/50」，让用户知道两套分值并存
+      var sec=null;c.sections.forEach(function(s){if(s.name===d.name)sec=s;});
+      var o=document.createElement('option');o.value=d.name;
+      o.textContent=d.name+'（满分'+(sec?sectionFullLabel(sec):d.full)+'）';
+      sel.appendChild(o);
+    });
     sel.value='总分';
   }
   function avg(vals){var n=vals.filter(function(v){return v!=null;});if(!n.length)return null;return n.reduce(function(a,b){return a+b;},0)/n.length;}
@@ -1159,6 +1260,7 @@
     if(isNaN(target))target=c.target;
 
     var actIds={};activePapers().forEach(function(p){actIds[p.id]=true;});
+    var yearById={};papers.forEach(function(p){yearById[p.id]=p.name;}); // 折算得分率时要知道每套卷的年份
     var xLabels=activePapers().map(function(p){return p.name;});
     var dim=currentDimension();
     var series=ROUNDS.map(function(r){
@@ -1179,8 +1281,16 @@
     var s2=ROUNDS.map(function(r){
       return {name:r,type:'bar',barMaxWidth:28,
         data:c.sections.map(function(sec,si){
-          var vals=[];records.forEach(function(rec){if(!actIds[rec.paperId])return;if(rec.round===r&&rec.s[si]!=null&&!isNaN(rec.s[si]))vals.push(rec.s[si]);});
-          return vals.length?+(vals.reduce(function(a,b){return a+b;},0)/vals.length/sec.full*100).toFixed(1):0;
+          // 按**每套试卷自己年份的满分**汇总后折算：数学 2021 年前后选择/填空/解答的分值不同，
+          // 用同一个满分折算会把老卷的得分率算错。fullSum 为 0（该刷次一列都没填）时给 0。
+          var sum=0,fullSum=0;
+          records.forEach(function(rec){
+            if(!actIds[rec.paperId])return;
+            if(rec.round!==r||rec.s[si]==null||isNaN(rec.s[si]))return;
+            sum+=rec.s[si];
+            fullSum+=sectionFull(sec,yearById[rec.paperId]);
+          });
+          return fullSum?+(sum/fullSum*100).toFixed(1):0;
         })
       };
     });
@@ -1279,7 +1389,7 @@
         if(ci===undefined)return;
         var raw=(ci<row.length?row[ci]:'').trim();
         if(raw==='')rec.s[si]=null;
-        else{var v=parseFloat(raw);rec.s[si]=isNaN(v)?null:Math.min(Math.max(v,0),c.sections[si].full);}
+        else{var v=parseFloat(raw);rec.s[si]=isNaN(v)?null:Math.min(Math.max(v,0),sectionFull(c.sections[si],paper.name));}
       });
       if(timeCol!==undefined){
         var tv=(timeCol<row.length?row[timeCol]:'').trim();
